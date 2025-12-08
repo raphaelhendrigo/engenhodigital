@@ -1,0 +1,766 @@
+#:import dp kivy.metrics.dp
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+#:set primary_color 0.12, 0.36, 0.68, 1
+#:set accent_color 0.98, 0.58, 0.18, 1
+#:set surface_color 0.08, 0.11, 0.16, 1
+#:set card_color 0.14, 0.18, 0.24, 1
+#:set text_color 0.95, 0.96, 0.98, 1
+#:set muted_text 0.75, 0.80, 0.85, 1
+
+<StatChip@BoxLayout>:
+    title: ""
+    caption: ""
+    orientation: "vertical"
+    spacing: dp(4)
+    padding: dp(12)
+    size_hint_y: None
+    height: self.minimum_height
+    canvas.before:
+        Color:
+            rgba: card_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(12)]
+    Label:
+        text: root.title
+        color: text_color
+        bold: True
+        font_size: "20sp"
+        size_hint_y: None
+        height: self.texture_size[1]
+    Label:
+        text: root.caption
+        color: muted_text
+        font_size: "14sp"
+        text_size: self.width, None
+        halign: "left"
+        valign: "top"
+        size_hint_y: None
+        height: self.texture_size[1]
+
+<PillarCard@BoxLayout>:
+    title: ""
+    description: ""
+    orientation: "vertical"
+    spacing: dp(6)
+    padding: dp(12)
+    size_hint_y: None
+    height: self.minimum_height
+    canvas.before:
+        Color:
+            rgba: card_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(12)]
+    Label:
+        text: root.title
+        color: text_color
+        bold: True
+        font_size: "17sp"
+        size_hint_y: None
+        height: self.texture_size[1]
+    Label:
+        text: root.description
+        color: muted_text
+        font_size: "14sp"
+        text_size: self.width, None
+        halign: "left"
+        valign: "top"
+        size_hint_y: None
+        height: self.texture_size[1]
+
+<ProjectCard@BoxLayout>:
+    category: ""
+    title: ""
+    summary: ""
+    bullet1: ""
+    bullet2: ""
+    bullet3: ""
+    orientation: "vertical"
+    spacing: dp(8)
+    padding: dp(14)
+    size_hint_y: None
+    height: self.minimum_height
+    canvas.before:
+        Color:
+            rgba: card_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(14)]
+    Label:
+        text: root.category
+        color: accent_color
+        font_size: "14sp"
+        size_hint_y: None
+        height: self.texture_size[1]
+    Label:
+        text: root.title
+        color: text_color
+        bold: True
+        font_size: "18sp"
+        size_hint_y: None
+        height: self.texture_size[1]
+    Label:
+        text: root.summary
+        color: muted_text
+        font_size: "14sp"
+        text_size: self.width, None
+        halign: "left"
+        valign: "top"
+        size_hint_y: None
+        height: self.texture_size[1]
+    BoxLayout:
+        orientation: "vertical"
+        spacing: dp(4)
+        size_hint_y: None
+        height: self.minimum_height
+        Label:
+            text: "\u2022 " + root.bullet1
+            color: muted_text
+            font_size: "13sp"
+            text_size: self.width, None
+            size_hint_y: None
+            height: self.texture_size[1]
+            halign: "left"
+            valign: "top"
+        Label:
+            text: "\u2022 " + root.bullet2
+            color: muted_text
+            font_size: "13sp"
+            text_size: self.width, None
+            size_hint_y: None
+            height: self.texture_size[1]
+            halign: "left"
+            valign: "top"
+        Label:
+            text: "\u2022 " + root.bullet3
+            color: muted_text
+            font_size: "13sp"
+            text_size: self.width, None
+            size_hint_y: None
+            height: self.texture_size[1]
+            halign: "left"
+            valign: "top"
+
+<ProfileCard@BoxLayout>:
+    name: ""
+    role: ""
+    bullet1: ""
+    bullet2: ""
+    bullet3: ""
+    orientation: "vertical"
+    spacing: dp(8)
+    padding: dp(14)
+    size_hint_y: None
+    height: self.minimum_height
+    canvas.before:
+        Color:
+            rgba: card_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(14)]
+    Label:
+        text: root.role
+        color: accent_color
+        font_size: "14sp"
+        size_hint_y: None
+        height: self.texture_size[1]
+    Label:
+        text: root.name
+        color: text_color
+        bold: True
+        font_size: "18sp"
+        size_hint_y: None
+        height: self.texture_size[1]
+    BoxLayout:
+        orientation: "vertical"
+        spacing: dp(4)
+        size_hint_y: None
+        height: self.minimum_height
+        Label:
+            text: "\u2022 " + root.bullet1
+            color: muted_text
+            font_size: "13sp"
+            text_size: self.width, None
+            size_hint_y: None
+            height: self.texture_size[1]
+            halign: "left"
+            valign: "top"
+        Label:
+            text: "\u2022 " + root.bullet2
+            color: muted_text
+            font_size: "13sp"
+            text_size: self.width, None
+            size_hint_y: None
+            height: self.texture_size[1]
+            halign: "left"
+            valign: "top"
+        Label:
+            text: "\u2022 " + root.bullet3
+            color: muted_text
+            font_size: "13sp"
+            text_size: self.width, None
+            size_hint_y: None
+            height: self.texture_size[1]
+            halign: "left"
+            valign: "top"
+
+<DetailedServiceCard>:
+    title: ""
+    summary: ""
+    bullet1: ""
+    bullet2: ""
+    bullet3: ""
+    orientation: "vertical"
+    spacing: dp(8)
+    padding: dp(14)
+    size_hint_y: None
+    height: self.minimum_height
+    canvas.before:
+        Color:
+            rgba: card_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(14)]
+    Label:
+        text: root.title
+        color: text_color
+        bold: True
+        font_size: "18sp"
+        size_hint_y: None
+        height: self.texture_size[1]
+    Label:
+        text: root.summary
+        color: muted_text
+        font_size: "14sp"
+        text_size: self.width, None
+        halign: "left"
+        valign: "top"
+        size_hint_y: None
+        height: self.texture_size[1]
+    BoxLayout:
+        orientation: "vertical"
+        spacing: dp(4)
+        size_hint_y: None
+        height: self.minimum_height
+        Label:
+            text: "\u2022 " + root.bullet1
+            color: muted_text
+            font_size: "13sp"
+            text_size: self.width, None
+            size_hint_y: None
+            height: self.texture_size[1]
+            halign: "left"
+            valign: "top"
+        Label:
+            text: "\u2022 " + root.bullet2
+            color: muted_text
+            font_size: "13sp"
+            text_size: self.width, None
+            size_hint_y: None
+            height: self.texture_size[1]
+            halign: "left"
+            valign: "top"
+        Label:
+            text: "\u2022 " + root.bullet3
+            color: muted_text
+            font_size: "13sp"
+            text_size: self.width, None
+            size_hint_y: None
+            height: self.texture_size[1]
+            halign: "left"
+            valign: "top"
+
+<NavButton@Button>:
+    background_normal: ""
+    background_down: ""
+    background_color: 0, 0, 0, 0
+    color: text_color
+    bold: True
+    font_size: "15sp"
+    padding: dp(12), dp(10)
+    canvas.before:
+        Color:
+            rgba: (0.18, 0.23, 0.32, 1) if self.state == "normal" else (0.24, 0.30, 0.40, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(10)]
+
+<PrimaryButton@Button>:
+    background_normal: ""
+    background_down: ""
+    background_color: accent_color
+    color: (0.08, 0.10, 0.12, 1)
+    bold: True
+    font_size: "16sp"
+    padding: dp(16), dp(14)
+    canvas.before:
+        Color:
+            rgba: accent_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(12)]
+
+<GhostButton@Button>:
+    background_normal: ""
+    background_down: ""
+    background_color: 0, 0, 0, 0
+    color: text_color
+    font_size: "16sp"
+    padding: dp(16), dp(14)
+    canvas.before:
+        Color:
+            rgba: (0.18, 0.23, 0.32, 1) if self.state == "normal" else (0.24, 0.30, 0.40, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(12)]
+
+<SectionTitle@Label>:
+    color: text_color
+    bold: True
+    font_size: "22sp"
+    size_hint_y: None
+    height: self.texture_size[1]
+
+<SectionSubtitle@Label>:
+    color: muted_text
+    font_size: "15sp"
+    halign: "left"
+    valign: "top"
+    text_size: self.width, None
+    size_hint_y: None
+    height: self.texture_size[1]
+
+<ServiceCard>:
+    size_hint_y: None
+    height: self.minimum_height
+    orientation: "vertical"
+    spacing: dp(8)
+    padding: dp(14)
+    canvas.before:
+        Color:
+            rgba: card_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(14)]
+    Label:
+        text: root.title
+        color: text_color
+        bold: True
+        font_size: "18sp"
+        size_hint_y: None
+        height: self.texture_size[1]
+    Label:
+        text: root.description
+        color: muted_text
+        font_size: "15sp"
+        text_size: self.width, None
+        halign: "left"
+        valign: "top"
+        size_hint_y: None
+        height: self.texture_size[1]
+
+<HomeScreen>:
+    name: "home"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: surface_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            size_hint_y: None
+            height: dp(64)
+            padding: dp(16), dp(12)
+            spacing: dp(8)
+            canvas.before:
+                Color:
+                    rgba: (0.10, 0.14, 0.20, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                text: "Engenho Digital"
+                color: text_color
+                bold: True
+                font_size: "20sp"
+                halign: "left"
+                valign: "middle"
+            BoxLayout:
+                size_hint_x: None
+                width: dp(220)
+                spacing: dp(8)
+                NavButton:
+                    text: "Home"
+                    on_release: app.root.current = "home"
+                NavButton:
+                    text: "Servicos"
+                    on_release: app.root.current = "services"
+                NavButton:
+                    text: "Contato"
+                    on_release: app.root.current = "contact"
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+                padding: dp(18), dp(18)
+                spacing: dp(16)
+                Image:
+                    source: app.logo_source
+                    size_hint_y: None
+                    height: dp(140)
+                Label:
+                    text: root.hero_title
+                    color: text_color
+                    font_size: "26sp"
+                    bold: True
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                Label:
+                    text: root.hero_subtitle
+                    color: accent_color
+                    font_size: "18sp"
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                Label:
+                    text: root.hero_tagline
+                    color: text_color
+                    font_size: "18sp"
+                    bold: True
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                Label:
+                    text: root.hero_body
+                    color: muted_text
+                    font_size: "15sp"
+                    text_size: self.width, None
+                    halign: "left"
+                    valign: "top"
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(54)
+                    spacing: dp(12)
+                    PrimaryButton:
+                        text: root.cta_primary
+                        on_release: app.root.current = "contact"
+                    GhostButton:
+                        text: root.cta_secondary
+                        on_release: app.root.current = "services"
+                BoxLayout:
+                    id: stats_box
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: dp(10)
+                    RecycleView:
+                        viewclass: "StatChip"
+                        data: [{"title": item["value"], "caption": item["label"]} for item in root.stats]
+                        RecycleBoxLayout:
+                            default_size: None, dp(90)
+                            default_size_hint: 1, None
+                            size_hint_y: None
+                            height: self.minimum_height
+                            spacing: dp(10)
+                            orientation: "vertical"
+                Label:
+                    text: "O que fazemos"
+                    color: text_color
+                    font_size: "22sp"
+                    bold: True
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                RecycleView:
+                    viewclass: "PillarCard"
+                    do_scroll_x: False
+                    data: [{"title": item["title"], "description": item["description"]} for item in root.pillars]
+                    RecycleBoxLayout:
+                        default_size: None, dp(120)
+                        default_size_hint: 1, None
+                        size_hint_y: None
+                        height: self.minimum_height
+                        spacing: dp(10)
+                        orientation: "vertical"
+                Label:
+                    text: "Quem assina os projetos"
+                    color: text_color
+                    font_size: "22sp"
+                    bold: True
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                RecycleView:
+                    viewclass: "ProfileCard"
+                    do_scroll_x: False
+                    data: [{"name": p["name"], "role": p["role"], "bullet1": p["bullets"][0], "bullet2": p["bullets"][1], "bullet3": p["bullets"][2]} for p in root.profiles]
+                    RecycleBoxLayout:
+                        default_size: None, dp(160)
+                        default_size_hint: 1, None
+                        size_hint_y: None
+                        height: self.minimum_height
+                        spacing: dp(12)
+                        orientation: "vertical"
+                Label:
+                    text: "Projetos em destaque"
+                    color: text_color
+                    font_size: "22sp"
+                    bold: True
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                RecycleView:
+                    viewclass: "ProjectCard"
+                    do_scroll_x: False
+                    data: [{"category": p["category"], "title": p["title"], "summary": p["summary"], "bullet1": p["bullets"][0], "bullet2": p["bullets"][1], "bullet3": p["bullets"][2]} for p in root.highlight_projects]
+                    RecycleBoxLayout:
+                        default_size: None, dp(200)
+                        default_size_hint: 1, None
+                        size_hint_y: None
+                        height: self.minimum_height
+                        spacing: dp(12)
+                        orientation: "vertical"
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: dp(8)
+                    size_hint_y: None
+                    height: self.minimum_height
+                    canvas.before:
+                        Color:
+                            rgba: (0.10, 0.14, 0.20, 1)
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [dp(14)]
+                    padding: dp(14)
+                    Label:
+                        text: "Vamos tirar seu projeto do papel?"
+                        color: text_color
+                        font_size: "20sp"
+                        bold: True
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                    Label:
+                        text: "Envie um resumo da necessidade em software ou projeto eletrico e retornamos com abordagem tecnica e prazos."
+                        color: muted_text
+                        font_size: "14sp"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "top"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                    PrimaryButton:
+                        text: "Fale com a gente"
+                        size_hint_y: None
+                        height: dp(48)
+                        on_release: app.root.current = "contact"
+
+<ServicesScreen>:
+    name: "services"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: surface_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            size_hint_y: None
+            height: dp(64)
+            padding: dp(16), dp(12)
+            spacing: dp(8)
+            canvas.before:
+                Color:
+                    rgba: (0.10, 0.14, 0.20, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                text: "Servicos"
+                color: text_color
+                bold: True
+                font_size: "20sp"
+                halign: "left"
+                valign: "middle"
+            BoxLayout:
+                size_hint_x: None
+                width: dp(220)
+                spacing: dp(8)
+                NavButton:
+                    text: "Home"
+                    on_release: app.root.current = "home"
+                NavButton:
+                    text: "Servicos"
+                    on_release: app.root.current = "services"
+                NavButton:
+                    text: "Contato"
+                    on_release: app.root.current = "contact"
+        BoxLayout:
+            orientation: "vertical"
+            padding: dp(18)
+            spacing: dp(12)
+            Label:
+                text: "O que fazemos"
+                color: text_color
+                font_size: "24sp"
+                bold: True
+                size_hint_y: None
+                height: self.texture_size[1]
+            Label:
+                text: "Servicos que conectam engenharia, software e dados."
+                color: muted_text
+                font_size: "15sp"
+                text_size: self.width, None
+                halign: "left"
+                valign: "top"
+                size_hint_y: None
+                height: self.texture_size[1]
+            RecycleView:
+                viewclass: "ServiceCard"
+                do_scroll_x: False
+                scroll_type: ["bars", "content"]
+                bar_width: dp(6)
+                data: [{"title": item["title"], "description": item["description"]} for item in root.services]
+                RecycleBoxLayout:
+                    default_size: None, dp(120)
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: dp(12)
+                    orientation: "vertical"
+            Label:
+                text: "Etapas e entregas"
+                color: text_color
+                font_size: "20sp"
+                bold: True
+                size_hint_y: None
+                height: self.texture_size[1]
+            RecycleView:
+                viewclass: "PillarCard"
+                do_scroll_x: False
+                data: [{"title": f"{item['index']}. {item['title']}", "description": item["description"]} for item in root.overview]
+                RecycleBoxLayout:
+                    default_size: None, dp(110)
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: dp(10)
+                    orientation: "vertical"
+            Label:
+                text: "Detalhamento de servicos"
+                color: text_color
+                font_size: "20sp"
+                bold: True
+                size_hint_y: None
+                height: self.texture_size[1]
+            RecycleView:
+                viewclass: "DetailedServiceCard"
+                do_scroll_x: False
+                data: [{"title": item["title"], "summary": item["summary"], "bullet1": item["bullets"][0], "bullet2": item["bullets"][1], "bullet3": item["bullets"][2]} for item in root.detailed_services]
+                RecycleBoxLayout:
+                    default_size: None, dp(170)
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: dp(12)
+                    orientation: "vertical"
+
+<ContactScreen>:
+    name: "contact"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: surface_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            size_hint_y: None
+            height: dp(64)
+            padding: dp(16), dp(12)
+            spacing: dp(8)
+            canvas.before:
+                Color:
+                    rgba: (0.10, 0.14, 0.20, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                text: "Contato"
+                color: text_color
+                bold: True
+                font_size: "20sp"
+                halign: "left"
+                valign: "middle"
+            BoxLayout:
+                size_hint_x: None
+                width: dp(220)
+                spacing: dp(8)
+                NavButton:
+                    text: "Home"
+                    on_release: app.root.current = "home"
+                NavButton:
+                    text: "Servicos"
+                    on_release: app.root.current = "services"
+                NavButton:
+                    text: "Contato"
+                    on_release: app.root.current = "contact"
+        BoxLayout:
+            orientation: "vertical"
+            padding: dp(18)
+            spacing: dp(16)
+            Label:
+                text: "Vamos conversar?"
+                color: text_color
+                font_size: "24sp"
+                bold: True
+                size_hint_y: None
+                height: self.texture_size[1]
+            Label:
+                text: "Envie um resumo do que precisa em software ou projetos eletricos e retornamos com abordagem tecnica."
+                color: muted_text
+                font_size: "15sp"
+                text_size: self.width, None
+                halign: "left"
+                valign: "top"
+                size_hint_y: None
+                height: self.texture_size[1]
+            PrimaryButton:
+                text: "Abrir site"
+                on_release: root.open_website()
+            GhostButton:
+                text: "Chamar no WhatsApp"
+                on_release: root.open_whatsapp()
+            GhostButton:
+                text: "Enviar e-mail"
+                on_release: root.open_email()
+            Label:
+                text: root.website_url
+                color: muted_text
+                font_size: "14sp"
+                text_size: self.width, None
+                halign: "left"
+                valign: "top"
+                size_hint_y: None
+                height: self.texture_size[1]
+
+ScreenManager:
+    transition: FadeTransition(duration=0.25)
+    HomeScreen:
+        name: "home"
+    ServicesScreen:
+        name: "services"
+    ContactScreen:
+        name: "contact"
