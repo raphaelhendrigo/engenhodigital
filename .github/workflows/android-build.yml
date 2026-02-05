@@ -107,7 +107,10 @@ jobs:
 
       - name: Compute Android version code
         run: |
-          VERSION_CODE=$((2100000000 + GITHUB_RUN_NUMBER))
+          # YYYYMMDD * 100 + (run_number % 100) keeps versionCode < 2.1B
+          DATE_CODE=$(date -u +%Y%m%d)
+          RUN_MOD=$((GITHUB_RUN_NUMBER % 100))
+          VERSION_CODE=$((DATE_CODE * 100 + RUN_MOD))
           echo "ANDROID_NUMERIC_VERSION=$VERSION_CODE" >> "$GITHUB_ENV"
 
       - name: Patch buildozer.spec with signing credentials

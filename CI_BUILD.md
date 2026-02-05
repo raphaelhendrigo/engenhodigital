@@ -48,4 +48,4 @@ No repositório, vá em **Settings → Secrets and variables → Actions** e adi
 ## Observações
 - O workflow usa `buildozer.spec` e injeta as credenciais de assinatura no CI.
 - Se quiser mudar o keystore, basta atualizar os secrets.
-- O `android.numeric_version` é calculado automaticamente no CI para evitar conflitos de versionCode no Play Console.
+- O `android.numeric_version` é calculado automaticamente no CI (baseado na data) para evitar conflitos de versionCode no Play Console.
