@@ -10,46 +10,44 @@ class HomeScreen(Screen):
     intro_title = StringProperty("Engenho Digital")
     intro_subtitle = StringProperty("Projetos & Sistemas")
     intro_description = StringProperty(
-        "Tecnologia, inovacao e produtos digitais feitos sob medida "
-        "para impulsionar negocios."
+        "Tecnologia, inovação e produtos digitais feitos sob medida "
+        "para impulsionar negócios."
     )
 
-    hero_title = StringProperty("Engenharia de software & projetos eletricos")
-    hero_subtitle = StringProperty("Solucoes digitais e eletricas")
-    hero_tagline = StringProperty(
-        "para tirar seus projetos do papel."
-    )
+    hero_title = StringProperty("Engenharia de software & projetos elétricos")
+    hero_subtitle = StringProperty("Soluções digitais e elétricas")
+    hero_tagline = StringProperty("para tirar seus projetos do papel.")
     hero_body = StringProperty(
         "A Engenho Digital integra desenvolvimento de softwares sob medida, "
-        "projetos eletricos em CAD/CAM e automacao de processos. "
-        "Combinamos engenharia, dados e experiencia em campo para entregar "
-        "solucoes enxutas, modernas e prontas para producao."
+        "projetos elétricos em CAD/CAM e automação de processos. "
+        "Combinamos engenharia, dados e experiência em campo para entregar "
+        "soluções enxutas, modernas e prontas para produção."
     )
 
-    cta_primary = StringProperty("Agendar conversa tecnica")
+    cta_primary = StringProperty("Agendar conversa técnica")
     cta_secondary = StringProperty("Ver projetos em destaque \u2192")
 
     stats = ListProperty(
         [
             {"value": "+10", "label": "Anos com tecnologia"},
-            {"value": "Full-stack", "label": "Web / APIs / Data"},
-            {"value": "CAD/CAM", "label": "Projetos eletricos detalhados"},
+            {"value": "Full-stack", "label": "Web · APIs · Data"},
+            {"value": "CAD/CAM", "label": "Projetos elétricos detalhados"},
         ]
     )
 
     pillars = ListProperty(
         [
             {
-                "title": "Software sob medida",
-                "description": "Sistemas web em Flask, React e cloud com automacao, dashboards e integracoes.",
+                "title": "Software sob medida para o seu negócio",
+                "description": "Sistemas web em Flask, React e cloud, focados em automação, dashboards e integrações.",
             },
             {
-                "title": "Projetos eletricos CAD/CAM",
-                "description": "Plantas, diagramas e detalhamento tecnico para obras e industria.",
+                "title": "Projetos elétricos em CAD/CAM",
+                "description": "Plantas, diagramas, quadros e detalhamento técnico para obras, indústrias e escritórios de engenharia.",
             },
             {
-                "title": "Consultoria em dados e automacao",
-                "description": "Uso de dados para reduzir retrabalho, padronizar processos e ganhar previsibilidade.",
+                "title": "Consultoria em dados e automação",
+                "description": "Uso inteligente de dados para reduzir retrabalho, padronizar processos e ganhar previsibilidade.",
             },
         ]
     )
@@ -57,21 +55,21 @@ class HomeScreen(Screen):
     profiles = ListProperty(
         [
             {
-                "name": "Raphael Hendrigo de Souza Goncalves",
+                "name": "Raphael Hendrigo de Souza Gonçalves",
                 "role": "Engenharia & Dados",
                 "bullets": [
-                    "Lideranca tecnica em solucoes web, automacao e analytics.",
-                    "Pos-graduando em Ciencia de Dados (USP ICMC).",
-                    "Transforma dados operacionais em insights acionaveis.",
+                    "Liderança técnica em soluções web, automação e analytics.",
+                    "Pós-graduando no MBA de Ciência de Dados do USP ICMC em São Carlos (SP).",
+                    "Especialista em transformar dados operacionais em insights acionáveis.",
                 ],
             },
             {
                 "name": "Edgar de Almeida",
-                "role": "Projetos Eletricos & CAD/CAM",
+                "role": "Projetos Elétricos & CAD/CAM",
                 "bullets": [
-                    "Especialista em plantas, diagramas e detalhamento executivo.",
-                    "Coordena listas de materiais e quadros de cargas.",
-                    "Foco em conformidade tecnica e eficiencia energetica.",
+                    "Domínio de plataformas CAD, modelagem 2D/3D e detalhamento executivo.",
+                    "Experiência em coordenação de listas de materiais, diagramas e quadros de cargas.",
+                    "Referência para garantir conformidade técnica e eficiência energética.",
                 ],
             },
         ]
@@ -80,33 +78,33 @@ class HomeScreen(Screen):
     highlight_projects = ListProperty(
         [
             {
-                "category": "Software \u00b7 Gestao",
-                "title": "Portal de Automacao de Processos Internos",
-                "summary": "Sistema web em Python/Flask integrado a nuvem para demandas, documentos e paineis.",
+                "category": "Software · Gestão",
+                "title": "Portal de Automação de Processos Internos",
+                "summary": "Sistema web em Python/Flask integrado à nuvem para controle de demandas, geração automática de documentos e painéis gerenciais.",
                 "bullets": [
-                    "Reduz retrabalho e garante rastreabilidade.",
-                    "Relatorios e historico completo de execucao.",
-                    "Exportacao rapida de documentos.",
+                    "Redução de retrabalho operacional.",
+                    "Histórico completo e rastreabilidade.",
+                    "Exportação de relatórios em poucos cliques.",
                 ],
             },
             {
-                "category": "Eletrica \u00b7 CAD/CAM",
-                "title": "Projeto Eletrico de Escritorio Corporativo",
-                "summary": "Plantas, diagramas e quadros de cargas para implantacao com eficiencia energetica.",
+                "category": "Elétrica · CAD/CAM",
+                "title": "Projeto Elétrico de Escritório Corporativo",
+                "summary": "Elaboração completa de plantas, diagramas e quadros de cargas para implantação de novo escritório, com foco em segurança e eficiência energética.",
                 "bullets": [
-                    "Layouts em CAD com revisoes controladas.",
-                    "Documentacao pronta para aprovacao.",
+                    "Layout em CAD com revisões controladas.",
+                    "Documentação pronta para aprovação.",
                     "Lista de materiais organizada por ambiente.",
                 ],
             },
             {
-                "category": "Dados \u00b7 Automacao",
-                "title": "Monitoramento de Indicadores Tecnicos",
-                "summary": "Pipeline de dados centralizando metricas para decisoes rapidas e baseadas em evidencias.",
+                "category": "Dados · Automação",
+                "title": "Monitoramento de Indicadores Técnicos",
+                "summary": "Construção de pipeline de dados para concentrar informações em um único painel, permitindo decisões mais rápidas e baseadas em evidências.",
                 "bullets": [
-                    "Integracao de multiplas fontes de dados.",
-                    "Atualizacao automatica de metricas.",
-                    "Visualizacao clara para times tecnicos e gestores.",
+                    "Integração de múltiplas fontes de dados.",
+                    "Atualização automática de métricas.",
+                    "Visualização clara para times técnicos e gestores.",
                 ],
             },
         ]

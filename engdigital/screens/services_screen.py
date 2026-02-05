@@ -12,15 +12,15 @@ class ServicesScreen(Screen):
         [
             {
                 "title": "Desenvolvimento de Software",
-                "description": "Aplicacoes web modernas em Flask, React, APIs e bancos relacionais/NoSQL.",
+                "description": "Aplicações web modernas em Flask, React, APIs e bancos relacionais/NoSQL.",
             },
             {
-                "title": "Projetos Eletricos CAD/CAM",
-                "description": "Diagramas, layouts, quadros e listas de materiais prontos para execucao.",
+                "title": "Projetos Elétricos CAD/CAM",
+                "description": "Diagramas, layouts, quadros e listas de materiais prontos para execução.",
             },
             {
-                "title": "Automacao e Dados",
-                "description": "ETL/ELT, relatorios automatizados e pipelines para aliviar trabalho manual.",
+                "title": "Automação e Dados",
+                "description": "ETL/ELT, relatórios automatizados e pipelines para aliviar trabalho manual.",
             },
         ]
     )
@@ -30,16 +30,16 @@ class ServicesScreen(Screen):
             {
                 "index": "1",
                 "title": "Software sob medida",
-                "description": "Sistemas web em Flask, React e cloud, focados em automacao, dashboards e integracoes.",
+                "description": "Sistemas web em Flask, React e cloud, focados em automação, dashboards e integrações.",
             },
             {
                 "index": "2",
-                "title": "Projetos eletricos em CAD/CAM",
-                "description": "Plantas, diagramas, quadros e detalhamento tecnico para obras e industria.",
+                "title": "Projetos elétricos em CAD/CAM",
+                "description": "Plantas, diagramas, quadros e detalhamento técnico para obras e indústrias.",
             },
             {
                 "index": "3",
-                "title": "Consultoria em dados e automacao",
+                "title": "Consultoria em dados e automação",
                 "description": "Dados para reduzir retrabalho, padronizar processos e ganhar previsibilidade.",
             },
         ]
@@ -49,29 +49,29 @@ class ServicesScreen(Screen):
         [
             {
                 "title": "Desenvolvimento de Software",
-                "summary": "Aplicacoes web modernas usando Flask, React, APIs em Python e bancos relacionais e NoSQL.",
+                "summary": "Aplicações web modernas usando Flask, React, APIs em Python e bancos relacionais e NoSQL.",
                 "bullets": [
                     "Sistemas internos e portais web",
-                    "Dashboards para indicadores de gestao",
-                    "Integracao com servicos em nuvem e APIs",
+                    "Dashboards para indicadores de gestão",
+                    "Integração com serviços em nuvem e APIs",
                 ],
             },
             {
-                "title": "Projetos Eletricos CAD/CAM",
-                "summary": "Projetos em AutoCAD e ferramentas CAM para instalacoes eletricas prediais e industriais.",
+                "title": "Projetos Elétricos CAD/CAM",
+                "summary": "Projetos em AutoCAD e ferramentas CAM para instalações elétricas prediais, industriais e de infraestrutura.",
                 "bullets": [
                     "Diagramas unifilares e trifilares",
-                    "Layouts de iluminacao e tomadas",
-                    "Quadros de cargas e listas de materiais",
+                    "Layouts de iluminação e tomadas",
+                    "Quadros de cargas, listas de materiais e detalhamento",
                 ],
             },
             {
-                "title": "Automacao & Dados",
-                "summary": "Modelagem de dados, automacao de relatorios e pipelines que aliviam trabalho manual.",
+                "title": "Automação & Dados",
+                "summary": "Modelagem de dados, automação de relatórios e criação de pipelines que aliviam o trabalho manual do dia a dia.",
                 "bullets": [
                     "Rotinas de ETL/ELT para planilhas e bancos",
-                    "Automatizacao de relatorios tecnicos",
-                    "Suporte a IA aplicada ao negocio",
+                    "Automatização de relatórios técnicos e laudos",
+                    "Suporte para uso de inteligência artificial aplicada ao negócio",
                 ],
             },
         ]

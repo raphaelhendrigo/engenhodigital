@@ -11,6 +11,7 @@ from kivy.resources import resource_find
 from engdigital.screens.contact_screen import ContactScreen
 from engdigital.screens.home_screen import HomeScreen
 from engdigital.screens.services_screen import ServicesScreen
+from engdigital import config
 
 
 class EngenhoDigitalApp(App):
@@ -18,17 +19,19 @@ class EngenhoDigitalApp(App):
 
     def build(self):
         """Configure window properties and build the root widget."""
-        self.title = "Engenho Digital"
+        self.title = config.APP_NAME
 
         # Set a neutral dark background
         Window.clearcolor = (0.05, 0.08, 0.12, 1)
 
         kv_path = Path(__file__).resolve().parent.parent / "app.kv"
-        icon_path = Path(__file__).resolve().parent.parent / "assets" / "images" / "logo_placeholder.png"
+        images_dir = Path(__file__).resolve().parent.parent / "assets" / "images"
+        icon_path = images_dir / "icon.png"
+        logo_path = images_dir / "logo.png"
 
         if icon_path.exists():
             self.icon = str(icon_path)
-            self.logo_source = str(icon_path)
+            self.logo_source = str(logo_path if logo_path.exists() else icon_path)
         else:
             # Fallback to bundled Kivy icon to avoid missing file errors
             self.logo_source = resource_find("data/logo/kivy-icon-512.png") or ""

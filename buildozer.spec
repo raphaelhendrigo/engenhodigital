@@ -5,7 +5,7 @@
 title = Engenho Digital
 
 # (str) Package name
-package.name = engenhodigital
+package.name = app
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = com.engenhodigital
@@ -17,7 +17,7 @@ source.dir = .
 source.include_exts = py,png,kv,atlas,md,txt
 
 # (str) Application versioning (method 1)
-version = 0.1.0
+version = 1.0.0
 
 # (str) The main .py file to use as the main entry point for your app
 main = main.py
@@ -26,10 +26,10 @@ main = main.py
 requirements = python3,kivy,plyer
 
 # (str) Presplash of the application (optional). Provide a real image when available.
-# presplash.filename = %(source.dir)s/assets/images/logo_placeholder.png
+presplash.filename = %(source.dir)s/assets/images/presplash.png
 
 # (str) Icon of the application (optional).
-# icon.filename = %(source.dir)s/assets/images/logo_placeholder.png
+icon.filename = %(source.dir)s/assets/images/icon.png
 
 # (list) Permissions
 android.permissions = INTERNET
@@ -38,10 +38,10 @@ android.permissions = INTERNET
 orientation = portrait
 
 # (list) Supported architectures
-android.archs = arm64-v8a, armeabi-v7a, x86, x86_64
+android.archs = arm64-v8a, armeabi-v7a
 
 # (int) Target Android API (ensure it matches your SDK)
-android.api = 31
+android.api = 35
 
 # (int) Minimum API your APK will support
 android.minapi = 21

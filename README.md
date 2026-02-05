@@ -28,8 +28,10 @@ python main.py
 - `engdigital/`: pacote da aplicacao.
   - `app.py`: classe `EngenhoDigitalApp` e carga do KV.
   - `screens/`: telas Home, Servicos e Contato.
+- `engdigital/config.py`: dados de contato e links (atualize antes de publicar).
 - `app.kv`: layout e navegação.
-- `assets/`: logo/fonte (placeholder sem arquivo real).
+- `assets/`: imagens do app e materiais da Play Store.
+- `scripts/generate_assets.py`: gera ícone, presplash e artes iniciais.
 
 ## Build Android (Linux/WSL)
 1) Instale o Buildozer (fora do venv ou em um dedicado):
@@ -45,11 +47,14 @@ buildozer android debug  # primeira execucao baixa toolchain
 - Release APK: `buildozer android release` (assinar depois)
 - AAB (Play Store): `buildozer android release aab`
 
+## Build via GitHub Actions
+- Veja o guia em `CI_BUILD.md` para gerar o AAB automaticamente.
+
 ## Publicação Play Store
 1) Assine o release (`.apk` ou `.aab`) com keystore propria.
 2) Faça upload no Google Play Console (app novo, preencha metadata e politicas).
 3) Acompanhe reviews/testes internos antes de liberar em producao.
 
 ## Observacoes
-- Atualize URLs e contatos reais em `contact_screen.py`.
-- Adicione o arquivo real `assets/images/logo_placeholder.png` para icone/presplash.
+- Atualize URLs e contatos reais em `engdigital/config.py`.
+- Execute `python3 scripts/generate_assets.py` para gerar os assets iniciais.

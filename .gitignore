@@ -4,3 +4,6 @@ __pycache__/
 .buildozer/
 bin/
 *.log
+*.jks
+*.keystore
+keystore/

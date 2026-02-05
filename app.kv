@@ -405,7 +405,7 @@
                     text: "Home"
                     on_release: app.root.current = "home"
                 NavButton:
-                    text: "Servicos"
+                    text: "Serviços"
                     on_release: app.root.current = "services"
                 NavButton:
                     text: "Contato"
@@ -543,15 +543,15 @@
                             size: self.size
                             radius: [dp(14)]
                     padding: dp(14)
-                    Label:
-                        text: "Vamos tirar seu projeto do papel?"
+                Label:
+                    text: "Vamos tirar seu projeto do papel?"
                         color: text_color
                         font_size: "20sp"
                         bold: True
                         size_hint_y: None
                         height: self.texture_size[1]
                     Label:
-                        text: "Envie um resumo da necessidade em software ou projeto eletrico e retornamos com abordagem tecnica e prazos."
+                        text: "Envie um resumo da sua necessidade em software ou projetos elétricos e retornamos com abordagem técnica e prazos."
                         color: muted_text
                         font_size: "14sp"
                         text_size: self.width, None
@@ -586,8 +586,8 @@
                 Rectangle:
                     pos: self.pos
                     size: self.size
-            Label:
-                text: "Servicos"
+                Label:
+                    text: "Serviços"
                 color: text_color
                 bold: True
                 font_size: "20sp"
@@ -601,7 +601,7 @@
                     text: "Home"
                     on_release: app.root.current = "home"
                 NavButton:
-                    text: "Servicos"
+                    text: "Serviços"
                     on_release: app.root.current = "services"
                 NavButton:
                     text: "Contato"
@@ -610,15 +610,15 @@
             orientation: "vertical"
             padding: dp(18)
             spacing: dp(12)
-            Label:
-                text: "O que fazemos"
+                Label:
+                    text: "O que fazemos"
                 color: text_color
                 font_size: "24sp"
                 bold: True
                 size_hint_y: None
                 height: self.texture_size[1]
-            Label:
-                text: "Servicos que conectam engenharia, software e dados."
+                Label:
+                    text: "Serviços que conectam engenharia, software e dados."
                 color: muted_text
                 font_size: "15sp"
                 text_size: self.width, None
@@ -657,8 +657,8 @@
                     height: self.minimum_height
                     spacing: dp(10)
                     orientation: "vertical"
-            Label:
-                text: "Detalhamento de servicos"
+                Label:
+                    text: "Detalhamento de serviços"
                 color: text_color
                 font_size: "20sp"
                 bold: True
@@ -712,7 +712,7 @@
                     text: "Home"
                     on_release: app.root.current = "home"
                 NavButton:
-                    text: "Servicos"
+                    text: "Serviços"
                     on_release: app.root.current = "services"
                 NavButton:
                     text: "Contato"
@@ -729,7 +729,7 @@
                 size_hint_y: None
                 height: self.texture_size[1]
             Label:
-                text: "Envie um resumo do que precisa em software ou projetos eletricos e retornamos com abordagem tecnica."
+                text: "Envie um resumo da sua necessidade em software ou projetos elétricos e retornamos com abordagem técnica."
                 color: muted_text
                 font_size: "15sp"
                 text_size: self.width, None
@@ -746,8 +746,29 @@
             GhostButton:
                 text: "Enviar e-mail"
                 on_release: root.open_email()
+            GhostButton:
+                text: "Política de privacidade"
+                on_release: root.open_privacy_policy()
             Label:
                 text: root.website_url
+                color: muted_text
+                font_size: "14sp"
+                text_size: self.width, None
+                halign: "left"
+                valign: "top"
+                size_hint_y: None
+                height: self.texture_size[1]
+            Label:
+                text: "WhatsApp: " + root.support_phone
+                color: muted_text
+                font_size: "14sp"
+                text_size: self.width, None
+                halign: "left"
+                valign: "top"
+                size_hint_y: None
+                height: self.texture_size[1]
+            Label:
+                text: "E-mail: " + root.email_address
                 color: muted_text
                 font_size: "14sp"
                 text_size: self.width, None
