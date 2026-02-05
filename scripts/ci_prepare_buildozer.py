@@ -15,6 +15,8 @@ REQUIRED_ENV = {
 OPTIONAL_ENV = {
     "ANDROID_SDK_PATH": "android.sdk_path",
     "ANDROID_NDK_PATH": "android.ndk_path",
+    "ANDROID_NUMERIC_VERSION": "android.numeric_version",
+    "ANDROID_VERSION_NAME": "version",
 }
 
 
@@ -22,6 +24,11 @@ def main() -> None:
     missing = [key for key in REQUIRED_ENV if not os.getenv(key)]
     if missing:
         raise SystemExit(f"Missing environment variables: {', '.join(missing)}")
+
+    set_numeric = bool(os.getenv("ANDROID_NUMERIC_VERSION"))
+    set_version_name = bool(os.getenv("ANDROID_VERSION_NAME"))
+    set_sdk_path = bool(os.getenv("ANDROID_SDK_PATH"))
+    set_ndk_path = bool(os.getenv("ANDROID_NDK_PATH"))
 
     lines = SPEC_PATH.read_text(encoding="utf-8").splitlines()
 
@@ -32,7 +39,12 @@ def main() -> None:
 
     def is_sdk_line(line: str) -> bool:
         stripped = line.strip()
-        return stripped.startswith("android.sdk_path") or stripped.startswith("android.ndk_path")
+        return (
+            (set_sdk_path and stripped.startswith("android.sdk_path"))
+            or (set_ndk_path and stripped.startswith("android.ndk_path"))
+            or (set_numeric and stripped.startswith("android.numeric_version"))
+            or (set_version_name and stripped.startswith("version ="))
+        )
 
     filtered: list[str] = [line for line in lines if not is_release_line(line) and not is_sdk_line(line)]
 

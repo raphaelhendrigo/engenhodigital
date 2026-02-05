@@ -2,6 +2,22 @@ name: Android AAB (Buildozer)
 
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "Upload to Play Console (true/false)"
+        required: false
+        default: "true"
+      track:
+        description: "Play track (internal, closed, production)"
+        required: false
+        default: "internal"
+      release_status:
+        description: "Release status (draft, inProgress, completed, halted)"
+        required: false
+        default: "completed"
+      release_name:
+        description: "Optional release name (e.g., v1.2.3)"
+        required: false
   push:
     branches:
       - main
@@ -89,6 +105,11 @@ jobs:
           echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/25.2.9519653" >> "$GITHUB_ENV"
           echo "ANDROIDNDK=$ANDROID_SDK_ROOT/ndk/25.2.9519653" >> "$GITHUB_ENV"
 
+      - name: Compute Android version code
+        run: |
+          VERSION_CODE=$((2100000000 + GITHUB_RUN_NUMBER))
+          echo "ANDROID_NUMERIC_VERSION=$VERSION_CODE" >> "$GITHUB_ENV"
+
       - name: Patch buildozer.spec with signing credentials
         run: |
           ANDROID_KEYSTORE_PATH="$PWD/keystore.jks" \
@@ -97,11 +118,23 @@ jobs:
           ANDROID_KEY_ALIAS_PASSWORD="${{ secrets.ANDROID_KEY_ALIAS_PASSWORD }}" \
           ANDROID_SDK_PATH="${{ env.ANDROID_SDK_ROOT }}" \
           ANDROID_NDK_PATH="${{ env.ANDROID_NDK_HOME }}" \
+          ANDROID_NUMERIC_VERSION="${{ env.ANDROID_NUMERIC_VERSION }}" \
           python3 scripts/ci_prepare_buildozer.py
 
       - name: Build AAB
         run: |
           buildozer android release aab
+
+      - name: Upload to Play Console
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == 'true' }}
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.engenhodigital.app
+          releaseFiles: bin/*.aab
+          track: ${{ inputs.track }}
+          status: ${{ inputs.release_status }}
+          releaseName: ${{ inputs.release_name }}
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
