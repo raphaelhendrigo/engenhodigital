@@ -12,6 +12,11 @@ REQUIRED_ENV = {
     "ANDROID_KEY_ALIAS_PASSWORD": "android.release_keyalias_pass",
 }
 
+OPTIONAL_ENV = {
+    "ANDROID_SDK_PATH": "android.sdk_path",
+    "ANDROID_NDK_PATH": "android.ndk_path",
+}
+
 
 def main() -> None:
     missing = [key for key in REQUIRED_ENV if not os.getenv(key)]
@@ -25,7 +30,11 @@ def main() -> None:
         stripped = line.strip()
         return stripped.startswith("android.release_")
 
-    filtered: list[str] = [line for line in lines if not is_release_line(line)]
+    def is_sdk_line(line: str) -> bool:
+        stripped = line.strip()
+        return stripped.startswith("android.sdk_path") or stripped.startswith("android.ndk_path")
+
+    filtered: list[str] = [line for line in lines if not is_release_line(line) and not is_sdk_line(line)]
 
     # Find [app] section boundaries
     try:
@@ -47,7 +56,13 @@ def main() -> None:
         f"{REQUIRED_ENV['ANDROID_KEY_ALIAS_PASSWORD']} = {os.environ['ANDROID_KEY_ALIAS_PASSWORD']}",
     ]
 
-    output = filtered[:insert_index] + release_lines + filtered[insert_index:]
+    sdk_lines: list[str] = []
+    for env_key, spec_key in OPTIONAL_ENV.items():
+        value = os.getenv(env_key)
+        if value:
+            sdk_lines.append(f"{spec_key} = {value}")
+
+    output = filtered[:insert_index] + release_lines + sdk_lines + filtered[insert_index:]
     SPEC_PATH.write_text("\n".join(output) + "\n", encoding="utf-8")
 
 
