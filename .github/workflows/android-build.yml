@@ -148,6 +148,13 @@ jobs:
           # is treated as a second buildozer command and fails ("Unknown command aab").
           buildozer android release
 
+      - name: Ensure Play publishing secret is configured
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == 'true' && secrets.PLAY_SERVICE_ACCOUNT_JSON == '' }}
+        run: |
+          echo "Missing GitHub Actions secret: PLAY_SERVICE_ACCOUNT_JSON" >&2
+          echo "Set it in: Settings -> Secrets and variables -> Actions" >&2
+          exit 1
+
       - name: Upload to Play Console
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == 'true' }}
         uses: r0adkll/upload-google-play@v1
