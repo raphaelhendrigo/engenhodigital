@@ -7,3 +7,5 @@ bin/
 *.jks
 *.keystore
 keystore/
+play-service-account.json
+play-service-account*.json

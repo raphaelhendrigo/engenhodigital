@@ -58,5 +58,4 @@ warn_on_root = 0
 
 # Basic build steps (run inside Linux/WSL):
 # 1) buildozer -v android debug      # generates a debug APK
-# 2) buildozer android release       # release build (signing required)
-# 3) buildozer android release aab   # to upload to Play Store
+# 2) buildozer android release       # signed Play-ready AAB (signing required)

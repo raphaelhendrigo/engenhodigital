@@ -30,6 +30,13 @@ No repositório, vá em **Settings → Secrets and variables → Actions** e adi
 - `ANDROID_KEY_ALIAS_PASSWORD` = senha do alias
 - `PLAY_SERVICE_ACCOUNT_JSON` = JSON da Service Account com acesso ao Play Console
 
+Opcional (menos cliques): configurar o `PLAY_SERVICE_ACCOUNT_JSON` via GitHub CLI (`gh`):
+```bash
+cp play-service-account.json.example play-service-account.json
+# Edite play-service-account.json e cole o JSON real (nao commitar; esta no .gitignore)
+./scripts/play/set_play_service_account_secret.sh
+```
+
 ## 4) Rodar o workflow
 - Vá em **Actions → Android AAB (Buildozer)** e clique em **Run workflow**.
 - Para publicar automaticamente, use:
@@ -37,6 +44,11 @@ No repositório, vá em **Settings → Secrets and variables → Actions** e adi
   - `track = internal | closed | production`
   - `release_status = draft | inProgress | completed | halted`
 - Ao terminar, baixe o artifact `engenho-digital-aab` (se quiser o AAB local).
+
+Opcional (automatizado via `gh`):
+```bash
+./scripts/play/publish_internal.sh internal completed
+```
 
 ## 5) Subir no Play Console
 - Se `publish = true`, o upload é feito automaticamente.
