@@ -137,8 +137,16 @@ jobs:
           python3 scripts/ci_prepare_buildozer.py
 
       - name: Build AAB
+        env:
+          # p4a reads these directly for release signing.
+          P4A_RELEASE_KEYSTORE: ${{ github.workspace }}/keystore.jks
+          P4A_RELEASE_KEYSTORE_PASSWD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          P4A_RELEASE_KEYALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          P4A_RELEASE_KEYALIAS_PASSWD: ${{ secrets.ANDROID_KEY_ALIAS_PASSWORD }}
         run: |
-          buildozer android release aab
+          # buildozer "release" already produces the Play-ready bundle; adding "aab"
+          # is treated as a second buildozer command and fails ("Unknown command aab").
+          buildozer android release
 
       - name: Upload to Play Console
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == 'true' }}
