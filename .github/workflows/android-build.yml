@@ -40,15 +40,20 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            autoconf \
+            automake \
             build-essential \
             curl \
             git \
+            libtool \
+            pkg-config \
             zip \
             unzip \
             openjdk-17-jdk \
             python3-pip \
             python3-venv \
             libffi-dev \
+            libltdl-dev \
             libssl-dev \
             zlib1g-dev \
             libjpeg-dev
