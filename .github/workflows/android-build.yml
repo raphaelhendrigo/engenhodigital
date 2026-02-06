@@ -149,11 +149,15 @@ jobs:
           buildozer android release
 
       - name: Ensure Play publishing secret is configured
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == 'true' && secrets.PLAY_SERVICE_ACCOUNT_JSON == '' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == 'true' }}
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
         run: |
-          echo "Missing GitHub Actions secret: PLAY_SERVICE_ACCOUNT_JSON" >&2
-          echo "Set it in: Settings -> Secrets and variables -> Actions" >&2
-          exit 1
+          if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then
+            echo "Missing GitHub Actions secret: PLAY_SERVICE_ACCOUNT_JSON" >&2
+            echo "Set it in: Settings -> Secrets and variables -> Actions" >&2
+            exit 1
+          fi
 
       - name: Upload to Play Console
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == 'true' }}
