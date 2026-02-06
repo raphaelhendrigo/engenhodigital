@@ -28,6 +28,11 @@ if ! gh secret list | grep -q "^PLAY_SERVICE_ACCOUNT_JSON\\b"; then
   exit 1
 fi
 
+prev_run_id="$(gh run list -w android-build.yml -b main -e workflow_dispatch -L 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null || true)"
+if [ -z "$prev_run_id" ]; then
+  prev_run_id="null"
+fi
+
 echo "Disparando workflow Android AAB (Buildozer) com publish=true (track=$TRACK, status=$RELEASE_STATUS)..."
 
 args=(android-build.yml --ref main -f "publish=true" -f "track=$TRACK" -f "release_status=$RELEASE_STATUS")
@@ -41,7 +46,7 @@ echo "Aguardando o run aparecer na lista..."
 run_id=""
 for _ in $(seq 1 30); do
   run_id="$(gh run list -w android-build.yml -b main -e workflow_dispatch -L 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null || true)"
-  if [ -n "$run_id" ] && [ "$run_id" != "null" ]; then
+  if [ -n "$run_id" ] && [ "$run_id" != "null" ] && [ "$run_id" != "$prev_run_id" ]; then
     break
   fi
   sleep 2
@@ -55,4 +60,3 @@ fi
 echo "Acompanhando run: $run_id"
 gh run watch "$run_id" --exit-status
 gh run view "$run_id"
-
