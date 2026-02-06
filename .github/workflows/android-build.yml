@@ -24,7 +24,7 @@ on:
 
 jobs:
   build-aab:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 60
 
     steps:
@@ -61,7 +61,8 @@ jobs:
       - name: Install Buildozer
         run: |
           python -m pip install --upgrade pip
-          python -m pip install cython buildozer
+          # p4a/pyjnius currently breaks with Cython 3.x in many setups.
+          python -m pip install "Cython==0.29.36" buildozer
 
       - name: Restore build cache
         uses: actions/cache@v4
@@ -69,8 +70,9 @@ jobs:
           path: |
             ~/.buildozer
             .buildozer
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          key: ${{ runner.os }}-buildozer-cython0.29-${{ hashFiles('buildozer.spec') }}
           restore-keys: |
+            ${{ runner.os }}-buildozer-cython0.29-
             ${{ runner.os }}-buildozer-
 
       - name: Decode keystore
