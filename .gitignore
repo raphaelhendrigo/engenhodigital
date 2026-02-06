@@ -9,3 +9,4 @@ bin/
 keystore/
 play-service-account.json
 play-service-account*.json
+play_upload/
