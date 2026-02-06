@@ -30,6 +30,10 @@ No repositório, vá em **Settings → Secrets and variables → Actions** e adi
 - `ANDROID_KEY_ALIAS_PASSWORD` = senha do alias
 - `PLAY_SERVICE_ACCOUNT_JSON` = JSON da Service Account com acesso ao Play Console
 
+Se o upload falhar com erro de API desabilitada, habilite no Google Cloud:
+- API: **Google Play Android Developer API** (`androidpublisher.googleapis.com`)
+- Depois aguarde 2-5 minutos e rode o workflow novamente.
+
 Opcional (menos cliques): configurar o `PLAY_SERVICE_ACCOUNT_JSON` via GitHub CLI (`gh`):
 ```bash
 cp play-service-account.json.example play-service-account.json
