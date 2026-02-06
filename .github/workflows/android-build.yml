@@ -148,8 +148,16 @@ jobs:
           # is treated as a second buildozer command and fails ("Unknown command aab").
           buildozer android release
 
+      - name: Upload AAB artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: engenho-digital-aab
+          path: bin/*.aab
+          if-no-files-found: warn
+
       - name: Ensure Play publishing secret is configured
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == 'true' && success() }}
         env:
           PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
         run: |
@@ -160,7 +168,7 @@ jobs:
           fi
 
       - name: Upload to Play Console
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == 'true' && success() }}
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
@@ -169,9 +177,3 @@ jobs:
           track: ${{ inputs.track }}
           status: ${{ inputs.release_status }}
           releaseName: ${{ inputs.release_name }}
-
-      - name: Upload AAB artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: engenho-digital-aab
-          path: bin/*.aab
