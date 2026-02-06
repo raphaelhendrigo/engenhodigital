@@ -21,6 +21,12 @@ on:
   push:
     branches:
       - main
+    tags:
+      - "v*"
+
+concurrency:
+  group: android-aab-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-aab:
@@ -30,6 +36,43 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Resolve publish config
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PUBLISH="false"
+          TRACK="internal"
+          STATUS="completed"
+          RELEASE_NAME=""
+          VERSION_NAME=""
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ inputs.publish }}" = "true" ]; then
+              PUBLISH="true"
+              TRACK="${{ inputs.track }}"
+              STATUS="${{ inputs.release_status }}"
+              RELEASE_NAME="${{ inputs.release_name }}"
+            fi
+          fi
+
+          # Automatic publishing on tags: push a tag like v1.2.3 to publish to internal.
+          if [[ "${GITHUB_REF:-}" == refs/tags/* ]]; then
+            PUBLISH="true"
+            TRACK="internal"
+            STATUS="completed"
+            RELEASE_NAME="${GITHUB_REF_NAME}"
+
+            # Use semver without leading "v" in the Android versionName.
+            VERSION_NAME="${GITHUB_REF_NAME#v}"
+          fi
+
+          echo "PUBLISH=$PUBLISH" >> "$GITHUB_ENV"
+          echo "PLAY_TRACK=$TRACK" >> "$GITHUB_ENV"
+          echo "PLAY_RELEASE_STATUS=$STATUS" >> "$GITHUB_ENV"
+          echo "RELEASE_NAME=$RELEASE_NAME" >> "$GITHUB_ENV"
+          echo "ANDROID_VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -80,11 +123,49 @@ jobs:
             ${{ runner.os }}-buildozer-cython0.29-
             ${{ runner.os }}-buildozer-
 
-      - name: Decode keystore
-        run: |
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > keystore.jks
+      - name: Prepare signing (real keystore or CI temporary keystore)
+        shell: bash
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_ALIAS_PASSWORD: ${{ secrets.ANDROID_KEY_ALIAS_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "${ANDROID_KEYSTORE_BASE64:-}" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > keystore.jks
+
+            # Copy secrets into env so later steps don't depend directly on secrets context.
+            echo "ANDROID_KEYSTORE_PASSWORD=${ANDROID_KEYSTORE_PASSWORD}" >> "$GITHUB_ENV"
+            echo "ANDROID_KEY_ALIAS=${ANDROID_KEY_ALIAS}" >> "$GITHUB_ENV"
+            echo "ANDROID_KEY_ALIAS_PASSWORD=${ANDROID_KEY_ALIAS_PASSWORD}" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          if [ "${PUBLISH:-false}" = "true" ]; then
+            echo "Missing signing secrets. Configure ANDROID_* secrets as described in CI_BUILD.md." >&2
+            exit 1
+          fi
+
+          # For non-publishing builds (e.g., push to main), generate a throwaway keystore so the AAB can be built.
+          KEYSTORE_PASS="ci-temporary-pass"
+          KEY_ALIAS="ci_upload"
+          KEY_ALIAS_PASS="ci-temporary-pass"
+
+          keytool -genkeypair \
+            -keystore keystore.jks \
+            -storepass "$KEYSTORE_PASS" \
+            -alias "$KEY_ALIAS" \
+            -keypass "$KEY_ALIAS_PASS" \
+            -dname "CN=CI,O=CI,C=US" \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000
+
+          echo "ANDROID_KEYSTORE_PASSWORD=${KEYSTORE_PASS}" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_ALIAS=${KEY_ALIAS}" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_ALIAS_PASSWORD=${KEY_ALIAS_PASS}" >> "$GITHUB_ENV"
 
       - name: Install Android SDK/NDK and accept licenses
         run: |
@@ -128,21 +209,22 @@ jobs:
       - name: Patch buildozer.spec with signing credentials
         run: |
           ANDROID_KEYSTORE_PATH="$PWD/keystore.jks" \
-          ANDROID_KEYSTORE_PASSWORD="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
-          ANDROID_KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }}" \
-          ANDROID_KEY_ALIAS_PASSWORD="${{ secrets.ANDROID_KEY_ALIAS_PASSWORD }}" \
+          ANDROID_KEYSTORE_PASSWORD="${{ env.ANDROID_KEYSTORE_PASSWORD }}" \
+          ANDROID_KEY_ALIAS="${{ env.ANDROID_KEY_ALIAS }}" \
+          ANDROID_KEY_ALIAS_PASSWORD="${{ env.ANDROID_KEY_ALIAS_PASSWORD }}" \
           ANDROID_SDK_PATH="${{ env.ANDROID_SDK_ROOT }}" \
           ANDROID_NDK_PATH="${{ env.ANDROID_NDK_HOME }}" \
           ANDROID_NUMERIC_VERSION="${{ env.ANDROID_NUMERIC_VERSION }}" \
+          ANDROID_VERSION_NAME="${{ env.ANDROID_VERSION_NAME }}" \
           python3 scripts/ci_prepare_buildozer.py
 
       - name: Build AAB
         env:
           # p4a reads these directly for release signing.
           P4A_RELEASE_KEYSTORE: ${{ github.workspace }}/keystore.jks
-          P4A_RELEASE_KEYSTORE_PASSWD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          P4A_RELEASE_KEYALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          P4A_RELEASE_KEYALIAS_PASSWD: ${{ secrets.ANDROID_KEY_ALIAS_PASSWORD }}
+          P4A_RELEASE_KEYSTORE_PASSWD: ${{ env.ANDROID_KEYSTORE_PASSWORD }}
+          P4A_RELEASE_KEYALIAS: ${{ env.ANDROID_KEY_ALIAS }}
+          P4A_RELEASE_KEYALIAS_PASSWD: ${{ env.ANDROID_KEY_ALIAS_PASSWORD }}
         run: |
           # buildozer "release" already produces the Play-ready bundle; adding "aab"
           # is treated as a second buildozer command and fails ("Unknown command aab").
@@ -157,7 +239,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Ensure Play publishing secret is configured
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == 'true' && success() }}
+        if: ${{ env.PUBLISH == 'true' && success() }}
         env:
           PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
         run: |
@@ -168,12 +250,12 @@ jobs:
           fi
 
       - name: Upload to Play Console
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == 'true' && success() }}
+        if: ${{ env.PUBLISH == 'true' && success() }}
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.engenhodigital.app
           releaseFiles: bin/*.aab
-          track: ${{ inputs.track }}
-          status: ${{ inputs.release_status }}
-          releaseName: ${{ inputs.release_name }}
+          track: ${{ env.PLAY_TRACK }}
+          status: ${{ env.PLAY_RELEASE_STATUS }}
+          releaseName: ${{ env.RELEASE_NAME }}

@@ -49,9 +49,33 @@ cp play-service-account.json.example play-service-account.json
   - `release_status = draft | inProgress | completed | halted`
 - Ao terminar, baixe o artifact `engenho-digital-aab` (se quiser o AAB local).
 
+## 4.1) Publicação automática por tag (sem cliques)
+Ao fazer push de uma tag `v*` (ex.: `v1.2.3`), o workflow:
+- gera o `.aab` assinado
+- publica automaticamente no Play Console no track `internal` com status `completed`
+
+Exemplo:
+```bash
+git tag v1.2.3
+git push origin v1.2.3
+```
+
 Opcional (automatizado via `gh`):
 ```bash
 ./scripts/play/publish_internal.sh internal completed
+```
+
+Opcional (PowerShell no Windows, tudo em um comando):
+```powershell
+.\scripts\play\publish.ps1 `
+  -KeystorePath .\keystore\engenho-digital-upload.jks `
+  -KeystorePassword "SENHA_DO_KEYSTORE" `
+  -KeyAlias "engenho_digital_upload" `
+  -KeyAliasPassword "SENHA_DO_ALIAS" `
+  -ServiceAccountJsonPath .\play-service-account.json `
+  -Track internal `
+  -ReleaseStatus completed `
+  -Watch
 ```
 
 ## 5) Subir no Play Console

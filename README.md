@@ -55,6 +55,11 @@ buildozer android debug  # primeira execucao baixa toolchain
 2) Faça upload no Google Play Console (app novo, preencha metadata e politicas).
 3) Acompanhe reviews/testes internos antes de liberar em producao.
 
+### Publicação automática (CI/CD)
+- O workflow **Android AAB (Buildozer)** pode publicar automaticamente no Play Console.
+- Automático por tag: crie e faça push de uma tag `vX.Y.Z` (ex.: `v1.2.3`) para publicar no track `internal`.
+- Para publicar em outro track (`closed`/`production`), use o `workflow_dispatch` conforme `CI_BUILD.md`.
+
 ## Observacoes
 - Atualize URLs e contatos reais em `engdigital/config.py`.
 - Execute `python3 scripts/generate_assets.py` para gerar os assets iniciais.
