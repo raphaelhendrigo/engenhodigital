@@ -10,3 +10,6 @@ keystore/
 play-service-account.json
 play-service-account*.json
 play_upload/
+
+# GCP service account keys (do not commit)
+appengenho-*.json
