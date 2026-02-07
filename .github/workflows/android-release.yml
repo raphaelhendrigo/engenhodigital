@@ -276,12 +276,40 @@ jobs:
           fi
           echo "AAB_PATH=$AAB_PATH" >> "$GITHUB_ENV"
 
-      - name: Upload AAB artifact
+      - name: Build universal APK from AAB (bundletool)
+        shell: bash
+        env:
+          AAB_PATH: ${{ env.AAB_PATH }}
+        run: |
+          set -euo pipefail
+
+          # Play uses AAB. This step creates a universal APK (for sideload/testing) as an artifact.
+          BUNDLETOOL_VERSION="1.15.6"
+          BUNDLETOOL_JAR="$RUNNER_TEMP/bundletool.jar"
+
+          curl -fsSL -o "$BUNDLETOOL_JAR" \
+            "https://github.com/google/bundletool/releases/download/${BUNDLETOOL_VERSION}/bundletool-all-${BUNDLETOOL_VERSION}.jar"
+
+          APKS_PATH="$RUNNER_TEMP/app.apks"
+          java -jar "$BUNDLETOOL_JAR" build-apks \
+            --bundle="$AAB_PATH" \
+            --output="$APKS_PATH" \
+            --mode=universal \
+            --ks="$ANDROID_KEYSTORE_PATH" \
+            --ks-pass="pass:${ANDROID_KEYSTORE_PASSWORD}" \
+            --ks-key-alias="$ANDROID_KEY_ALIAS" \
+            --key-pass="pass:${ANDROID_KEY_PASSWORD}"
+
+          unzip -p "$APKS_PATH" universal.apk > "bin/universal-release.apk"
+
+      - name: Upload Android artifacts (AAB + APK)
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: android-aab
-          path: bin/*.aab
+          name: android-artifacts
+          path: |
+            bin/*.aab
+            bin/universal-release.apk
           if-no-files-found: warn
 
       - name: Upload to Google Play (Fastlane supply)
