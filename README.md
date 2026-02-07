@@ -48,7 +48,7 @@ buildozer android debug  # primeira execucao baixa toolchain
 - AAB (Play Store): `buildozer android release aab`
 
 ## Build via GitHub Actions
-- Veja o guia em `CI_BUILD.md` para gerar o AAB automaticamente.
+- Veja `docs/RELEASE_PLAYSTORE.md` (e `CI_BUILD.md`) para release automatizado e publicação no Google Play.
 
 ## Publicação Play Store
 1) Assine o release (`.apk` ou `.aab`) com keystore propria.
@@ -56,9 +56,9 @@ buildozer android debug  # primeira execucao baixa toolchain
 3) Acompanhe reviews/testes internos antes de liberar em producao.
 
 ### Publicação automática (CI/CD)
-- O workflow **Android AAB (Buildozer)** pode publicar automaticamente no Play Console.
+- O workflow **Android Release (Play Store)** publica automaticamente no Play Console.
 - Automático por tag: crie e faça push de uma tag `vX.Y.Z` (ex.: `v1.2.3`) para publicar no track `internal`.
-- Para publicar em outro track (`closed`/`production`), use o `workflow_dispatch` conforme `CI_BUILD.md`.
+- Para publicar em outro track (`closed`/`open`/`production`) e/ou promover para production, use o `workflow_dispatch` conforme `docs/RELEASE_PLAYSTORE.md`.
 
 ## Observacoes
 - Atualize URLs e contatos reais em `engdigital/config.py`.

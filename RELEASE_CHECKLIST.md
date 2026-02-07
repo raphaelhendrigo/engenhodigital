@@ -16,7 +16,7 @@
 ## Build/Publish via GitHub Actions (recomendado)
 - Configure os secrets conforme `CI_BUILD.md`.
 - Para publicar automaticamente no track `internal`, crie e faça push de uma tag `vX.Y.Z`.
-- Para publicar em `closed`/`production`, use **Actions → Android AAB (Buildozer)** (workflow dispatch).
+- Para publicar em `closed`/`open`/`production` (e/ou promover para production), use **Actions → Android Release (Play Store)** (workflow dispatch).
 
 ## Play Console
 - Criar o app e preencher informações da ficha.
