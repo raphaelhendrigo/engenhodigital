@@ -10,6 +10,14 @@ on:
         description: "Play track (internal, beta, alpha, production). 'closed' is mapped to 'beta' for compatibility."
         required: false
         default: "internal"
+      version_name:
+        description: "Optional versionName (X.Y.Z). If empty, tags vX.Y.Z set it automatically."
+        required: false
+        default: ""
+      version_code:
+        description: "Optional versionCode override (integer). If empty, CI auto-generates."
+        required: false
+        default: ""
       promote_to_production:
         description: "Promote the uploaded release to production (true/false)"
         required: false
@@ -46,12 +54,20 @@ jobs:
           STATUS="completed"
           RELEASE_NAME=""
           RELEASE_VERSION_NAME=""
+          VERSION_CODE_OVERRIDE=""
 
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             TRACK="${{ inputs.release_track }}"
             PROMOTE="${{ inputs.promote_to_production }}"
             STATUS="${{ inputs.release_status }}"
             RELEASE_NAME="${{ inputs.release_name }}"
+            RELEASE_VERSION_NAME="${{ inputs.version_name }}"
+            VERSION_CODE_OVERRIDE="${{ inputs.version_code }}"
+
+            # Convenience: if version_name is empty but release_name looks like vX.Y.Z, reuse it.
+            if [ -z "$RELEASE_VERSION_NAME" ] && [[ "${RELEASE_NAME:-}" == v*.*.* ]]; then
+              RELEASE_VERSION_NAME="${RELEASE_NAME#v}"
+            fi
           fi
 
           if [[ "${GITHUB_REF:-}" == refs/tags/* ]]; then
@@ -74,6 +90,7 @@ jobs:
             echo "PLAY_RELEASE_STATUS=$STATUS"
             echo "PLAY_RELEASE_NAME=$RELEASE_NAME"
             echo "RELEASE_VERSION_NAME=$RELEASE_VERSION_NAME"
+            echo "VERSION_CODE_OVERRIDE=$VERSION_CODE_OVERRIDE"
           } >> "$GITHUB_ENV"
 
       - name: Set up Java
@@ -218,7 +235,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 scripts/set_version.py --env-file "$GITHUB_ENV" --version-name "${RELEASE_VERSION_NAME:-}"
+          args=(--env-file "$GITHUB_ENV" --version-name "${RELEASE_VERSION_NAME:-}")
+          if [ -n "${VERSION_CODE_OVERRIDE:-}" ]; then
+            args+=(--version-code "$VERSION_CODE_OVERRIDE")
+          fi
+          python3 scripts/set_version.py "${args[@]}"
 
       - name: Patch buildozer.spec (signing + version)
         run: python3 scripts/ci_prepare_buildozer.py
