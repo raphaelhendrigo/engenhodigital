@@ -29,6 +29,15 @@ function Require-Command {
     }
 }
 
+# Prefer gh from PATH, but fall back to default MSI install location.
+$ghCmd = Get-Command "gh" -ErrorAction SilentlyContinue
+if (-not $ghCmd) {
+    $ghFallback = Join-Path $env:ProgramFiles "GitHub CLI\\gh.exe"
+    if (Test-Path $ghFallback) {
+        Set-Alias -Name gh -Value $ghFallback -Scope Local
+    }
+}
+
 Require-Command "gh" "GitHub CLI (gh) not found. Install it and try again."
 
 if ($Token) {
