@@ -1,0 +1,4 @@
+# Keep configuration in env vars to avoid committing secrets.
+json_key_file(ENV["PLAY_JSON_KEY_PATH"]) if ENV["PLAY_JSON_KEY_PATH"]
+package_name(ENV["PLAY_PACKAGE_NAME"]) if ENV["PLAY_PACKAGE_NAME"]
+

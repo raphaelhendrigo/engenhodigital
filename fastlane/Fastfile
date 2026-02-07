@@ -1,0 +1,53 @@
+default_platform(:android)
+
+platform :android do
+  desc "Upload signed AAB to Google Play (track via PLAY_TRACK, default internal)"
+  lane :upload do
+    aab_path = ENV.fetch("AAB_PATH")
+    track = ENV["PLAY_TRACK"] || "internal"
+    release_status = ENV["PLAY_RELEASE_STATUS"] || "completed"
+    release_name = ENV["PLAY_RELEASE_NAME"]
+
+    upload_to_play_store(
+      aab: aab_path,
+      track: track,
+      release_status: release_status,
+      release_name: release_name,
+      json_key: ENV.fetch("PLAY_JSON_KEY_PATH"),
+      package_name: ENV.fetch("PLAY_PACKAGE_NAME"),
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
+  desc "Upload signed AAB to internal track"
+  lane :internal do
+    ENV["PLAY_TRACK"] = "internal"
+    upload
+  end
+
+  desc "Upload signed AAB to production track"
+  lane :production do
+    ENV["PLAY_TRACK"] = "production"
+    upload
+  end
+
+  desc "Promote an existing track release to production (safe default: internal -> production)"
+  lane :promote_to_production do
+    from_track = ENV["PLAY_TRACK"] || "internal"
+    promote_status = ENV["PLAY_PROMOTE_RELEASE_STATUS"] || (ENV["PLAY_RELEASE_STATUS"] || "completed")
+
+    supply(
+      json_key: ENV.fetch("PLAY_JSON_KEY_PATH"),
+      package_name: ENV.fetch("PLAY_PACKAGE_NAME"),
+      track: from_track,
+      track_promote_to: "production",
+      track_promote_release_status: promote_status,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end
+
