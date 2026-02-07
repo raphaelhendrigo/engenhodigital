@@ -48,27 +48,35 @@ Write-Host "Generating keystore: $keystoreFullPath"
 docker run --rm `
   -v "${keystoreDir}:/out" `
   $image `
-  bash -lc @"
-set -euo pipefail
-keytool -genkeypair \
-  -storetype JKS \
-  -keystore "$containerKeystorePath" \
-  -storepass "$KeystorePassword" \
-  -alias "$Alias" \
-  -keypass "$KeyPassword" \
-  -dname "$Dname" \
-  -keyalg RSA \
-  -keysize 2048 \
-  -validity "$ValidityDays"
+  keytool -genkeypair `
+    -storetype JKS `
+    -keystore "$containerKeystorePath" `
+    -storepass "$KeystorePassword" `
+    -alias "$Alias" `
+    -keypass "$KeyPassword" `
+    -dname "$Dname" `
+    -keyalg RSA `
+    -keysize 2048 `
+    -validity "$ValidityDays"
 
-keytool -export -rfc \
-  -alias "$Alias" \
-  -keystore "$containerKeystorePath" \
-  -storepass "$KeystorePassword" \
-  -file "$containerCertPath"
-"@
+docker run --rm `
+  -v "${keystoreDir}:/out" `
+  $image `
+  keytool -export -rfc `
+    -alias "$Alias" `
+    -keystore "$containerKeystorePath" `
+    -storepass "$KeystorePassword" `
+    -file "$containerCertPath"
 
 $certFullPath = Join-Path $keystoreDir $certFileName
+if (-not (Test-Path $keystoreFullPath)) {
+    Write-Error "Keystore was not created: $keystoreFullPath"
+    exit 1
+}
+if (-not (Test-Path $certFullPath)) {
+    Write-Error "Upload certificate was not created: $certFullPath"
+    exit 1
+}
+
 Write-Host "Keystore created: $keystoreFullPath"
 Write-Host "Upload certificate created: $certFullPath"
-
