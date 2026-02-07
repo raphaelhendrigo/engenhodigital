@@ -6,13 +6,11 @@ platform :android do
     aab_path = ENV.fetch("AAB_PATH")
     track = ENV["PLAY_TRACK"] || "internal"
     release_status = ENV["PLAY_RELEASE_STATUS"] || "completed"
-    release_name = ENV["PLAY_RELEASE_NAME"]
 
     upload_to_play_store(
       aab: aab_path,
       track: track,
       release_status: release_status,
-      release_name: release_name,
       json_key: ENV.fetch("PLAY_JSON_KEY_PATH"),
       package_name: ENV.fetch("PLAY_PACKAGE_NAME"),
       skip_upload_metadata: true,
@@ -50,4 +48,3 @@ platform :android do
     )
   end
 end
-
