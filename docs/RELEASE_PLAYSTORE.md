@@ -54,7 +54,7 @@ git push origin v1.2.3
 ### 2) Release manual (workflow_dispatch)
 
 Em `Actions -> Android Release (Play Store) -> Run workflow`:
-- `release_track`: `internal` (default), `closed`, `open`, `production` (também aceita `beta` como alias de `closed`)
+- `release_track`: `internal` (default), `beta`, `alpha`, `production` (`closed` é aceito como alias de `beta`)
 - `promote_to_production`: `true/false` (se `true`, promove o release do track escolhido para `production`)
 
 ## Versionamento (CI)
@@ -93,4 +93,3 @@ bundle exec fastlane android upload
 
 Checklist do Play Console e setup inicial (service account, permissões, app signing):
 - `CHECKLIST_MANUAL_PLAY_CONSOLE.md`
-

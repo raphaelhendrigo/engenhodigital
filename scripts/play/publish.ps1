@@ -9,7 +9,7 @@ param(
     [string]$KeyAliasPassword,
     [Parameter(Mandatory = $true)]
     [string]$ServiceAccountJsonPath,
-    [ValidateSet("internal", "closed", "production")]
+    [ValidateSet("internal", "beta", "alpha", "closed", "production")]
     [string]$Track = "internal",
     [ValidateSet("draft", "inProgress", "completed", "halted")]
     [string]$ReleaseStatus = "completed",

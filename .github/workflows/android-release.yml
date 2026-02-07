@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       release_track:
-        description: "Play track (internal, closed, open, production). 'beta' is mapped to 'closed'."
+        description: "Play track (internal, beta, alpha, production). 'closed' is mapped to 'beta' for compatibility."
         required: false
         default: "internal"
       promote_to_production:
@@ -64,8 +64,8 @@ jobs:
           fi
 
           # Backward compatibility with old track naming.
-          if [ "$TRACK" = "beta" ]; then
-            TRACK="closed"
+          if [ "$TRACK" = "closed" ]; then
+            TRACK="beta"
           fi
 
           {

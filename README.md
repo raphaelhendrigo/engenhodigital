@@ -58,7 +58,7 @@ buildozer android debug  # primeira execucao baixa toolchain
 ### Publicação automática (CI/CD)
 - O workflow **Android Release (Play Store)** publica automaticamente no Play Console.
 - Automático por tag: crie e faça push de uma tag `vX.Y.Z` (ex.: `v1.2.3`) para publicar no track `internal`.
-- Para publicar em outro track (`closed`/`open`/`production`) e/ou promover para production, use o `workflow_dispatch` conforme `docs/RELEASE_PLAYSTORE.md`.
+- Para publicar em outro track (`beta`/`alpha`/`production`) e/ou promover para production, use o `workflow_dispatch` conforme `docs/RELEASE_PLAYSTORE.md`.
 
 ## Observacoes
 - Atualize URLs e contatos reais em `engdigital/config.py`.
