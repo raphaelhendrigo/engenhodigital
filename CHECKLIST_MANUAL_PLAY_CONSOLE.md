@@ -59,9 +59,12 @@ keytool -export -rfc \
 3. Guarde o arquivo JSON com segurança (não comitar).
 
 ## 6) Conceder acesso da Service Account no Play Console (mínimo necessário)
-1. No Play Console: **Users and permissions**.
-2. Convide o e-mail `client_email` da service account.
-3. Conceda permissões mínimas para publicar no(s) track(s) desejado(s).
+1. No Play Console: **Setup -> API access**.
+2. Confirme que o projeto Google Cloud está **linkado** (seção "Linked project").
+3. Em **Service accounts**, encontre a service account do projeto linkado e clique em **Grant access**.
+4. Se necessário, em **Users and permissions**, confirme que o e-mail `client_email` está com acesso ao app.
+   - Exemplo (neste caso): `appengenho@appengenho.iam.gserviceaccount.com`
+5. Conceda permissões mínimas para publicar no(s) track(s) desejado(s).
 
 Sugestão pragmática:
 - Para publicar `internal` e promover para `production`: papel equivalente a **Release manager** (somente para o app).
@@ -98,6 +101,8 @@ Link direto (este repositório):
   - Subir no Play Console **somente** se for solicitado (App integrity -> upload key).
 - `c:\\apps\\engenhodigital\\play-service-account.json`
   - Não subir no Git. Copie o conteúdo para o secret `PLAY_SERVICE_ACCOUNT_JSON`.
+- `c:\\apps\\engenhodigital\\appengenho-*.json`
+  - Chave JSON baixada do Google Cloud. Não subir no Git. Copie o conteúdo para `PLAY_SERVICE_ACCOUNT_JSON` e mova o arquivo para um local seguro fora do repo.
 - `c:\\apps\\engenhodigital\\bin\\*.aab`
   - Saída de build local (gitignored). Se precisar upload manual, este é o arquivo.
 
@@ -107,3 +112,16 @@ Link direto (este repositório):
 - Classificação indicativa (Content rating)
 - Acesso ao app / credenciais de teste (se exigido)
 - Revisão e aprovação da primeira publicação em production
+
+## Troubleshooting (CI) - "Package not found"
+Se o workflow falhar com:
+`Google Api Error: Invalid request - Package not found: com.engenhodigital.app.`
+
+1. Confirme que o app já existe no Play Console e que o **package name** é exatamente o mesmo do bundle.
+   - Neste repo, o package name vem de `buildozer.spec`:
+     - `package.domain = com.engenhodigital`
+     - `package.name = app`
+     - Resultado: `com.engenhodigital.app`
+2. Em **Setup -> API access**, confirme que o projeto Google Cloud linkado é o mesmo que contém a service account.
+3. Em **Service accounts**, clique em **Grant access** para a service account e dê permissões no app.
+4. Aguarde 2-5 minutos e rode o workflow novamente.
