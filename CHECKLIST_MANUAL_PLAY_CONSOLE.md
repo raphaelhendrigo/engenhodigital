@@ -9,6 +9,13 @@ Observação importante: **API access** fica no nível da **conta do desenvolved
 - Developer account -> API access: `https://play.google.com/console/developers/api-access`
 - Developer account -> Users and permissions: `https://play.google.com/console/developers/users-and-permissions`
 
+## Onde encontrar o Developer Account ID (19 dígitos)
+O **ID da conta de desenvolvedor** é um número de **19 dígitos**.
+
+- No Play Console: **Conta de desenvolvedor -> Configurações -> Detalhes da conta** (procure por "ID da conta de desenvolvedor").
+- Atalho: em muitas páginas do Play Console, o número aparece na barra de endereço (URL), logo após `/developers/`:
+  - Exemplo: `https://play.google.com/console/developers/1234567890123456789/...`
+
 ## 1) Criar o app no Play Console
 1. Acesse o Play Console e clique em **Create app**:
    - Link: `https://play.google.com/console`
