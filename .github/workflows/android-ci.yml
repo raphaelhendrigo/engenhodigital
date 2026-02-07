@@ -1,0 +1,119 @@
+name: Android CI (Buildozer)
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: android-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-ci:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Lint (syntax)
+        run: python -m compileall -q .
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            build-essential \
+            curl \
+            git \
+            libtool \
+            pkg-config \
+            zip \
+            unzip \
+            python3-pip \
+            python3-venv \
+            libffi-dev \
+            libltdl-dev \
+            libssl-dev \
+            zlib1g-dev \
+            libjpeg-dev
+
+      - name: Install Buildozer
+        run: |
+          python -m pip install --upgrade pip
+          # p4a/pyjnius currently breaks with Cython 3.x in many setups.
+          python -m pip install "Cython==0.29.36" "buildozer==1.5.0"
+
+      - name: Restore Buildozer cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            .buildozer
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-
+
+      - name: Install Android SDK/NDK and accept licenses
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ANDROID_SDK_ROOT="$HOME/android-sdk"
+          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+
+          if [ ! -d "$ANDROID_SDK_ROOT/cmdline-tools/latest" ]; then
+            curl -fsSL -o /tmp/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-6514223_latest.zip
+            unzip -q /tmp/cmdline-tools.zip -d "$ANDROID_SDK_ROOT/cmdline-tools"
+            mv "$ANDROID_SDK_ROOT/cmdline-tools/tools" "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+          fi
+
+          export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"
+
+          # Buildozer still checks for sdkmanager at tools/bin
+          mkdir -p "$ANDROID_SDK_ROOT/tools/bin"
+          ln -sf "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" "$ANDROID_SDK_ROOT/tools/bin/sdkmanager"
+          ln -sf "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager" "$ANDROID_SDK_ROOT/tools/bin/avdmanager"
+
+          yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
+          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;36.1.0" \
+            "ndk;25.2.9519653"
+
+          {
+            echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+            echo "ANDROID_HOME=$ANDROID_SDK_ROOT"
+            echo "ANDROIDSDK=$ANDROID_SDK_ROOT"
+            echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/25.2.9519653"
+            echo "ANDROIDNDK=$ANDROID_SDK_ROOT/ndk/25.2.9519653"
+          } >> "$GITHUB_ENV"
+
+      - name: Build (debug)
+        run: buildozer android debug
+
+      - name: Upload build artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build-output
+          path: bin/*
+          if-no-files-found: warn
+

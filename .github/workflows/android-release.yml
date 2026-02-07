@@ -1,0 +1,306 @@
+name: Android Release (Play Store)
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      release_track:
+        description: "Play track (internal, closed, open, production). 'beta' is mapped to 'closed'."
+        required: false
+        default: "internal"
+      promote_to_production:
+        description: "Promote the uploaded release to production (true/false)"
+        required: false
+        default: "false"
+      release_status:
+        description: "Release status (draft, inProgress, completed, halted)"
+        required: false
+        default: "completed"
+      release_name:
+        description: "Optional release name (shown in Play Console)"
+        required: false
+        default: ""
+
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-release:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve release config
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TRACK="internal"
+          PROMOTE="false"
+          STATUS="completed"
+          RELEASE_NAME=""
+          RELEASE_VERSION_NAME=""
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TRACK="${{ inputs.release_track }}"
+            PROMOTE="${{ inputs.promote_to_production }}"
+            STATUS="${{ inputs.release_status }}"
+            RELEASE_NAME="${{ inputs.release_name }}"
+          fi
+
+          if [[ "${GITHUB_REF:-}" == refs/tags/* ]]; then
+            # Safe defaults on tag release: upload to internal, no auto-promotion.
+            TRACK="internal"
+            PROMOTE="false"
+            STATUS="completed"
+            RELEASE_NAME="${GITHUB_REF_NAME}"
+            RELEASE_VERSION_NAME="${GITHUB_REF_NAME#v}"
+          fi
+
+          # Backward compatibility with old track naming.
+          if [ "$TRACK" = "beta" ]; then
+            TRACK="closed"
+          fi
+
+          {
+            echo "RELEASE_TRACK=$TRACK"
+            echo "PROMOTE_TO_PRODUCTION=$PROMOTE"
+            echo "PLAY_RELEASE_STATUS=$STATUS"
+            echo "PLAY_RELEASE_NAME=$RELEASE_NAME"
+            echo "RELEASE_VERSION_NAME=$RELEASE_VERSION_NAME"
+          } >> "$GITHUB_ENV"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            build-essential \
+            curl \
+            git \
+            libtool \
+            pkg-config \
+            zip \
+            unzip \
+            python3-pip \
+            python3-venv \
+            libffi-dev \
+            libltdl-dev \
+            libssl-dev \
+            zlib1g-dev \
+            libjpeg-dev
+
+      - name: Install Buildozer
+        run: |
+          python -m pip install --upgrade pip
+          # p4a/pyjnius currently breaks with Cython 3.x in many setups.
+          python -m pip install "Cython==0.29.36" "buildozer==1.5.0"
+
+      - name: Restore Buildozer cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            .buildozer
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-
+
+      - name: Prepare signing + Play credentials
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || secrets.ANDROID_KEY_ALIAS_PASSWORD }}
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${ANDROID_KEYSTORE_BASE64:-}" ]; then
+            echo "Missing secret: ANDROID_KEYSTORE_BASE64" >&2
+            exit 1
+          fi
+          if [ -z "${ANDROID_KEYSTORE_PASSWORD:-}" ]; then
+            echo "Missing secret: ANDROID_KEYSTORE_PASSWORD" >&2
+            exit 1
+          fi
+          if [ -z "${ANDROID_KEY_ALIAS:-}" ]; then
+            echo "Missing secret: ANDROID_KEY_ALIAS" >&2
+            exit 1
+          fi
+          if [ -z "${ANDROID_KEY_PASSWORD:-}" ]; then
+            echo "Missing secret: ANDROID_KEY_PASSWORD (or legacy ANDROID_KEY_ALIAS_PASSWORD)" >&2
+            exit 1
+          fi
+          if [ -z "${PLAY_SERVICE_ACCOUNT_JSON:-}" ]; then
+            echo "Missing secret: PLAY_SERVICE_ACCOUNT_JSON" >&2
+            exit 1
+          fi
+
+          KEYSTORE_PATH="$RUNNER_TEMP/upload-keystore.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+
+          PLAY_KEY_PATH="$RUNNER_TEMP/play-key.json"
+          printf '%s' "$PLAY_SERVICE_ACCOUNT_JSON" > "$PLAY_KEY_PATH"
+
+          {
+            echo "ANDROID_KEYSTORE_PATH=$KEYSTORE_PATH"
+            echo "ANDROID_KEYSTORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD"
+            echo "ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS"
+            echo "ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD"
+            echo "PLAY_JSON_KEY_PATH=$PLAY_KEY_PATH"
+          } >> "$GITHUB_ENV"
+
+      - name: Install Android SDK/NDK and accept licenses
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ANDROID_SDK_ROOT="$HOME/android-sdk"
+          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+
+          if [ ! -d "$ANDROID_SDK_ROOT/cmdline-tools/latest" ]; then
+            curl -fsSL -o /tmp/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-6514223_latest.zip
+            unzip -q /tmp/cmdline-tools.zip -d "$ANDROID_SDK_ROOT/cmdline-tools"
+            mv "$ANDROID_SDK_ROOT/cmdline-tools/tools" "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+          fi
+
+          export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"
+
+          # Buildozer still checks for sdkmanager at tools/bin
+          mkdir -p "$ANDROID_SDK_ROOT/tools/bin"
+          ln -sf "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" "$ANDROID_SDK_ROOT/tools/bin/sdkmanager"
+          ln -sf "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager" "$ANDROID_SDK_ROOT/tools/bin/avdmanager"
+
+          yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
+          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;36.1.0" \
+            "ndk;25.2.9519653"
+
+          {
+            echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+            echo "ANDROID_HOME=$ANDROID_SDK_ROOT"
+            echo "ANDROIDSDK=$ANDROID_SDK_ROOT"
+            echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/25.2.9519653"
+            echo "ANDROIDNDK=$ANDROID_SDK_ROOT/ndk/25.2.9519653"
+            echo "ANDROID_SDK_PATH=$ANDROID_SDK_ROOT"
+            echo "ANDROID_NDK_PATH=$ANDROID_SDK_ROOT/ndk/25.2.9519653"
+          } >> "$GITHUB_ENV"
+
+      - name: Set versionName/versionCode (tag-aware)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/set_version.py --env-file "$GITHUB_ENV" --version-name "${RELEASE_VERSION_NAME:-}"
+
+      - name: Patch buildozer.spec (signing + version)
+        run: python3 scripts/ci_prepare_buildozer.py
+
+      - name: Detect Play package name
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKAGE_NAME="$(
+            python3 - <<'PY'
+from __future__ import annotations
+from pathlib import Path
+
+domain = ""
+name = ""
+in_app = False
+for raw in Path("buildozer.spec").read_text(encoding="utf-8").splitlines():
+    line = raw.strip()
+    if not line or line.startswith("#"):
+        continue
+    if line.startswith("[") and line.endswith("]"):
+        in_app = line == "[app]"
+        continue
+    if not in_app or "=" not in line:
+        continue
+    k, v = [x.strip() for x in line.split("=", 1)]
+    if k == "package.domain":
+        domain = v
+    elif k == "package.name":
+        name = v
+
+if not domain or not name:
+    raise SystemExit("Could not detect package.domain/package.name in buildozer.spec")
+print(f"{domain}.{name}")
+PY
+          )"
+          echo "PLAY_PACKAGE_NAME=$PACKAGE_NAME" >> "$GITHUB_ENV"
+
+      - name: Build AAB (release)
+        env:
+          # p4a reads these directly for release signing.
+          P4A_RELEASE_KEYSTORE: ${{ env.ANDROID_KEYSTORE_PATH }}
+          P4A_RELEASE_KEYSTORE_PASSWD: ${{ env.ANDROID_KEYSTORE_PASSWORD }}
+          P4A_RELEASE_KEYALIAS: ${{ env.ANDROID_KEY_ALIAS }}
+          P4A_RELEASE_KEYALIAS_PASSWD: ${{ env.ANDROID_KEY_PASSWORD }}
+        run: buildozer android release
+
+      - name: Resolve built AAB path
+        shell: bash
+        run: |
+          set -euo pipefail
+          AAB_PATH="$(ls -1 bin/*.aab 2>/dev/null | head -n 1 || true)"
+          if [ -z "$AAB_PATH" ] || [ ! -f "$AAB_PATH" ]; then
+            echo "No AAB found in bin/. Ensure buildozer is configured to generate .aab." >&2
+            ls -la bin || true
+            exit 1
+          fi
+          echo "AAB_PATH=$AAB_PATH" >> "$GITHUB_ENV"
+
+      - name: Upload AAB artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab
+          path: bin/*.aab
+          if-no-files-found: warn
+
+      - name: Upload to Google Play (Fastlane supply)
+        env:
+          AAB_PATH: ${{ env.AAB_PATH }}
+          PLAY_JSON_KEY_PATH: ${{ env.PLAY_JSON_KEY_PATH }}
+          PLAY_PACKAGE_NAME: ${{ env.PLAY_PACKAGE_NAME }}
+          PLAY_TRACK: ${{ env.RELEASE_TRACK }}
+          PLAY_RELEASE_STATUS: ${{ env.PLAY_RELEASE_STATUS }}
+          PLAY_RELEASE_NAME: ${{ env.PLAY_RELEASE_NAME }}
+        run: bundle exec fastlane android upload
+
+      - name: Promote to production
+        if: ${{ env.PROMOTE_TO_PRODUCTION == 'true' && env.RELEASE_TRACK != 'production' && success() }}
+        env:
+          PLAY_JSON_KEY_PATH: ${{ env.PLAY_JSON_KEY_PATH }}
+          PLAY_PACKAGE_NAME: ${{ env.PLAY_PACKAGE_NAME }}
+          PLAY_TRACK: ${{ env.RELEASE_TRACK }}
+          PLAY_PROMOTE_RELEASE_STATUS: ${{ env.PLAY_RELEASE_STATUS }}
+        run: bundle exec fastlane android promote_to_production
