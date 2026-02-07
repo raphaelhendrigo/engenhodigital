@@ -93,3 +93,26 @@ bundle exec fastlane android upload
 
 Checklist do Play Console e setup inicial (service account, permissões, app signing):
 - `CHECKLIST_MANUAL_PLAY_CONSOLE.md`
+
+## Links diretos (para autorizações manuais)
+
+```text
+GitHub Secrets (Actions):
+https://github.com/raphaelhendrigo/engenhodigital/settings/secrets/actions
+
+Workflows:
+https://github.com/raphaelhendrigo/engenhodigital/actions/workflows/android-ci.yml
+https://github.com/raphaelhendrigo/engenhodigital/actions/workflows/android-release.yml
+
+GitHub auth (device flow, para gh cli):
+https://github.com/login/device
+
+Play Console:
+https://play.google.com/console
+
+Google Cloud - Service Accounts:
+https://console.cloud.google.com/iam-admin/serviceaccounts
+
+Google Cloud - Enable Android Publisher API:
+https://console.cloud.google.com/apis/library/androidpublisher.googleapis.com
+```
