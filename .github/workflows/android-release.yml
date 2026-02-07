@@ -227,34 +227,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          PACKAGE_NAME="$(
-            python3 - <<'PY'
-from __future__ import annotations
-from pathlib import Path
-
-domain = ""
-name = ""
-in_app = False
-for raw in Path("buildozer.spec").read_text(encoding="utf-8").splitlines():
-    line = raw.strip()
-    if not line or line.startswith("#"):
-        continue
-    if line.startswith("[") and line.endswith("]"):
-        in_app = line == "[app]"
-        continue
-    if not in_app or "=" not in line:
-        continue
-    k, v = [x.strip() for x in line.split("=", 1)]
-    if k == "package.domain":
-        domain = v
-    elif k == "package.name":
-        name = v
-
-if not domain or not name:
-    raise SystemExit("Could not detect package.domain/package.name in buildozer.spec")
-print(f"{domain}.{name}")
-PY
-          )"
+          PACKAGE_NAME="$(python3 scripts/detect_play_package_name.py)"
           echo "PLAY_PACKAGE_NAME=$PACKAGE_NAME" >> "$GITHUB_ENV"
 
       - name: Build AAB (release)
