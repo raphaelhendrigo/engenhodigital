@@ -9,8 +9,13 @@ REQUIRED_ENV = {
     "ANDROID_KEYSTORE_PATH": "android.release_keystore",
     "ANDROID_KEYSTORE_PASSWORD": "android.release_keystore_pass",
     "ANDROID_KEY_ALIAS": "android.release_keyalias",
-    "ANDROID_KEY_ALIAS_PASSWORD": "android.release_keyalias_pass",
 }
+
+# Preferred env var name (matches common Android/CI conventions and this repo docs).
+KEY_PASSWORD_ENV = "ANDROID_KEY_PASSWORD"
+# Backward-compatible alias used by earlier CI setup/scripts.
+KEY_PASSWORD_ENV_FALLBACK = "ANDROID_KEY_ALIAS_PASSWORD"
+KEY_PASSWORD_SPEC_KEY = "android.release_keyalias_pass"
 
 OPTIONAL_ENV = {
     "ANDROID_SDK_PATH": "android.sdk_path",
@@ -22,6 +27,9 @@ OPTIONAL_ENV = {
 
 def main() -> None:
     missing = [key for key in REQUIRED_ENV if not os.getenv(key)]
+    key_password = os.getenv(KEY_PASSWORD_ENV) or os.getenv(KEY_PASSWORD_ENV_FALLBACK)
+    if not key_password:
+        missing.append(KEY_PASSWORD_ENV)
     if missing:
         raise SystemExit(f"Missing environment variables: {', '.join(missing)}")
 
@@ -65,7 +73,7 @@ def main() -> None:
         f"{REQUIRED_ENV['ANDROID_KEYSTORE_PATH']} = {os.environ['ANDROID_KEYSTORE_PATH']}",
         f"{REQUIRED_ENV['ANDROID_KEYSTORE_PASSWORD']} = {os.environ['ANDROID_KEYSTORE_PASSWORD']}",
         f"{REQUIRED_ENV['ANDROID_KEY_ALIAS']} = {os.environ['ANDROID_KEY_ALIAS']}",
-        f"{REQUIRED_ENV['ANDROID_KEY_ALIAS_PASSWORD']} = {os.environ['ANDROID_KEY_ALIAS_PASSWORD']}",
+        f"{KEY_PASSWORD_SPEC_KEY} = {key_password}",
     ]
 
     sdk_lines: list[str] = []
