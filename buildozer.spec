@@ -40,6 +40,9 @@ orientation = portrait
 # (list) Supported architectures
 android.archs = arm64-v8a, armeabi-v7a
 
+# (str) Release artifact format for Android (apk or aab). Use aab for Play Store.
+android.release_artifact = aab
+
 # (int) Target Android API (ensure it matches your SDK)
 android.api = 35
 
