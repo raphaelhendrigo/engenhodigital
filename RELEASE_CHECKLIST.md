@@ -9,7 +9,7 @@
 1) Instalar dependências do sistema (Java, Android SDK/NDK) via Buildozer.
 2) Gerar AAB:
    ```bash
-   buildozer android release aab
+   buildozer android release
    ```
 3) Assinar com keystore (obrigatório para Play Store).
 

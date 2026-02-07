@@ -44,8 +44,8 @@ buildozer android debug  # primeira execucao baixa toolchain
 ```
 3) Geração:
 - Debug APK: `buildozer -v android debug`
-- Release APK: `buildozer android release` (assinar depois)
-- AAB (Play Store): `buildozer android release aab`
+- Release AAB (Play Store): `buildozer android release`
+  - Observação: este repo força `android.release_artifact = aab` no `buildozer.spec`.
 
 ## Build via GitHub Actions
 - Veja `docs/RELEASE_PLAYSTORE.md` (e `CI_BUILD.md`) para release automatizado e publicação no Google Play.
