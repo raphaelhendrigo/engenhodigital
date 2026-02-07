@@ -86,22 +86,24 @@ $keystoreB64 = [Convert]::ToBase64String($keystoreBytes)
 gh secret set ANDROID_KEYSTORE_BASE64 -b $keystoreB64
 gh secret set ANDROID_KEYSTORE_PASSWORD -b $KeystorePassword
 gh secret set ANDROID_KEY_ALIAS -b $KeyAlias
+# New standard secret name (preferred) + legacy name for backward compatibility.
+gh secret set ANDROID_KEY_PASSWORD -b $KeyAliasPassword
 gh secret set ANDROID_KEY_ALIAS_PASSWORD -b $KeyAliasPassword
 gh secret set PLAY_SERVICE_ACCOUNT_JSON -b $serviceJsonRaw
 
 $prevRun = ""
 try {
-    $prevRun = gh run list -w android-build.yml -b $Ref -e workflow_dispatch -L 1 --json databaseId --jq '.[0].databaseId' 2>$null
+    $prevRun = gh run list -w android-release.yml -b $Ref -e workflow_dispatch -L 1 --json databaseId --jq '.[0].databaseId' 2>$null
 } catch {
     $prevRun = ""
 }
 
-$args = @("android-build.yml", "--ref", $Ref, "-f", "publish=true", "-f", "track=$Track", "-f", "release_status=$ReleaseStatus")
+$args = @("android-release.yml", "--ref", $Ref, "-f", "release_track=$Track", "-f", "release_status=$ReleaseStatus", "-f", "promote_to_production=false")
 if ($ReleaseName) {
     $args += @("-f", "release_name=$ReleaseName")
 }
 
-Write-Host "Triggering workflow Android AAB (Buildozer) with publish=true..."
+Write-Host "Triggering workflow Android Release (Play Store)..."
 gh workflow run @args
 
 if ($Watch) {
@@ -109,7 +111,7 @@ if ($Watch) {
     $runId = ""
     for ($i = 0; $i -lt 30; $i++) {
         try {
-            $runId = gh run list -w android-build.yml -b $Ref -e workflow_dispatch -L 1 --json databaseId --jq '.[0].databaseId' 2>$null
+            $runId = gh run list -w android-release.yml -b $Ref -e workflow_dispatch -L 1 --json databaseId --jq '.[0].databaseId' 2>$null
         } catch {
             $runId = ""
         }
@@ -120,7 +122,7 @@ if ($Watch) {
     }
 
     if (-not $runId -or $runId -eq "null" -or $runId -eq $prevRun) {
-        Write-Warning "Could not detect the run automatically. Check GitHub Actions -> Android AAB (Buildozer)."
+        Write-Warning "Could not detect the run automatically. Check GitHub Actions -> Android Release (Play Store)."
         exit 0
     }
 

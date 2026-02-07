@@ -28,14 +28,14 @@ if ! gh secret list | grep -q "^PLAY_SERVICE_ACCOUNT_JSON\\b"; then
   exit 1
 fi
 
-prev_run_id="$(gh run list -w android-build.yml -b main -e workflow_dispatch -L 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null || true)"
+prev_run_id="$(gh run list -w android-release.yml -b main -e workflow_dispatch -L 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null || true)"
 if [ -z "$prev_run_id" ]; then
   prev_run_id="null"
 fi
 
-echo "Disparando workflow Android AAB (Buildozer) com publish=true (track=$TRACK, status=$RELEASE_STATUS)..."
+echo "Disparando workflow Android Release (Play Store) (track=$TRACK, status=$RELEASE_STATUS)..."
 
-args=(android-build.yml --ref main -f "publish=true" -f "track=$TRACK" -f "release_status=$RELEASE_STATUS")
+args=(android-release.yml --ref main -f "release_track=$TRACK" -f "release_status=$RELEASE_STATUS" -f "promote_to_production=false")
 if [ -n "$RELEASE_NAME" ]; then
   args+=(-f "release_name=$RELEASE_NAME")
 fi
@@ -45,7 +45,7 @@ gh workflow run "${args[@]}"
 echo "Aguardando o run aparecer na lista..."
 run_id=""
 for _ in $(seq 1 30); do
-  run_id="$(gh run list -w android-build.yml -b main -e workflow_dispatch -L 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null || true)"
+  run_id="$(gh run list -w android-release.yml -b main -e workflow_dispatch -L 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null || true)"
   if [ -n "$run_id" ] && [ "$run_id" != "null" ] && [ "$run_id" != "$prev_run_id" ]; then
     break
   fi
@@ -53,7 +53,7 @@ for _ in $(seq 1 30); do
 done
 
 if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
-  echo "Nao consegui localizar o run automaticamente. Veja em: GitHub Actions -> Android AAB (Buildozer)" >&2
+  echo "Nao consegui localizar o run automaticamente. Veja em: GitHub Actions -> Android Release (Play Store)" >&2
   exit 1
 fi
 
