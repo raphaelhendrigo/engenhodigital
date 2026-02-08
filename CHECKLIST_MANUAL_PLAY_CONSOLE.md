@@ -71,8 +71,8 @@ keytool -export -rfc \
 2. **Link** um projeto existente do Google Cloud ou crie um novo.
 
 Observacao:
-- O Google indica que nao e mais necessario linkar a conta do Play Console a um projeto do Google Cloud para usar a Google Play Developer API, desde que voce conceda as permissoes da service account em **Users and permissions**.
-- Se o menu/pagina de **API access** nao aparecer para voce, siga para o passo 6 (Users and permissions).
+- Se o menu/pagina de **API access** nao aparecer/redirecionar, siga para o passo 6 (Users and permissions). Na pratica, o CI so precisa que a service account tenha permissoes no app.
+- Se o upload via CI falhar com erro de permissao/projeto nao linkado, volte aqui e tente linkar um projeto do Google Cloud pela pagina de **API access**.
 
 ## 4) Habilitar a Google Play Developer API
 1. No Google Cloud Console (projeto linkado), habilite:

@@ -90,7 +90,7 @@ Pontos principais:
    - Link curto (as vezes redireciona): https://play.google.com/console/developers/api-access
    - Link "fixo" (use seu Developer Account ID): https://play.google.com/console/u/0/developers/<DEVELOPER_ACCOUNT_ID>/api-access
    - Dica: se você cair em `.../developers/<ID>/app-list`, troque `app-list` por `api-access`.
-   - Se a pagina de **API access** redirecionar/nao existir, siga em frente: o fluxo via **Users and permissions** e suficiente.
+   - Se a pagina de **API access** redirecionar/nao existir, siga em frente e configure a service account via **Users and permissions**. Se o CI falhar com "project not linked"/permissoes, volte aqui e tente linkar o projeto.
 4. Conceder acesso para a service account (no Play Console, no app):
    - API access -> Service accounts -> Grant access
 5. Completar formulários obrigatórios antes do primeiro release (Store listing, Data safety, Content rating, etc).
