@@ -99,6 +99,8 @@ Pontos principais:
    - API access -> Service accounts -> Grant access
 5. Completar formulários obrigatórios antes do primeiro release (Store listing, Data safety, Content rating, etc).
    - Inclui a **declaração de ID de publicidade (Advertising ID)** para apps com target API 33+.
+   - Se o CI falhar com `Only releases with status draft may be created on draft app`, o app ainda está em estado **DRAFT**:
+     finalize o onboarding e faça pelo menos 1 rollout inicial pelo Play Console (ONE-TIME).
 6. Para publicar em **production**, o Play Console pode exigir **Teste fechado** (ex.: 12 testadores por 14 dias) antes de liberar acesso de producao.
 
 ## Rodar release local (Linux/WSL) (opcional)

@@ -211,3 +211,14 @@ Isso significa que o Play Console esta esperando uma **upload key** (certificado
      - `c:\\apps\\engenhodigital\\keystore\\engenho-digital-upload-cert.pem`
    - Depois disso, o SHA1 esperado no Play Console deve bater com o SHA1 impresso pelo bootstrap.
 3. Aguarde alguns minutos e rode o workflow novamente.
+
+## Troubleshooting (CI) - "Only releases with status draft may be created on draft app"
+Se o workflow falhar com:
+`Only releases with status draft may be created on draft app.`
+
+Isso significa que o app ainda está em estado **DRAFT** no Play Console (onboarding incompleto / primeiro release ainda não consolidado).
+
+O que fazer (ONE-TIME SETUP, inevitável por regra do Play Console):
+1. Complete o onboarding obrigatório do app no Play Console (ex.: Store listing, Data safety, Content rating, Advertising ID, etc.).
+2. Faça pelo menos 1 rollout "de verdade" (ex.: Teste fechado/alpha) pelo Play Console para tirar o app do estado DRAFT.
+3. Depois disso, rode o workflow novamente com `release_status=completed` (padrão).
