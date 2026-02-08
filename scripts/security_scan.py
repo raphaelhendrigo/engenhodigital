@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -9,21 +10,43 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
-def _git_ls_files_json(repo_root: Path) -> list[Path]:
+def _git_ls_files_json(repo_root: Path) -> tuple[list[Path], bool]:
     try:
         out = subprocess.check_output(
             ["git", "ls-files", "-z", "--", "*.json"],
             cwd=str(repo_root),
         )
     except (OSError, subprocess.CalledProcessError):
-        return []
+        return ([], False)
 
     paths: list[Path] = []
     for raw in out.decode("utf-8", errors="replace").split("\0"):
         if not raw:
             continue
         paths.append((repo_root / raw).resolve())
-    return paths
+    return (paths, True)
+
+
+def _walk_json_files(repo_root: Path) -> list[Path]:
+    excluded = {
+        ".git",
+        ".venv",
+        "__pycache__",
+        ".buildozer",
+        "bin",
+        "keystore",
+        "play_upload",
+    }
+
+    results: list[Path] = []
+    for root, dirs, files in os.walk(repo_root):
+        # Prune excluded directories
+        dirs[:] = [d for d in dirs if d not in excluded]
+        for name in files:
+            if not name.lower().endswith(".json"):
+                continue
+            results.append((Path(root) / name).resolve())
+    return results
 
 
 def _looks_like_service_account_key(text: str) -> bool:
@@ -50,7 +73,10 @@ def main(argv: list[str]) -> int:
     if args.paths:
         candidates = [(REPO_ROOT / p).resolve() for p in args.paths]
     else:
-        candidates = _git_ls_files_json(REPO_ROOT)
+        candidates, ok = _git_ls_files_json(REPO_ROOT)
+        if not ok:
+            # Fallback (e.g., running outside git). In CI, checkout normally includes git metadata.
+            candidates = _walk_json_files(REPO_ROOT)
 
     offenders: list[Path] = []
     for path in candidates:
