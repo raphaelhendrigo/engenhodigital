@@ -119,8 +119,13 @@ Algumas etapas costumam ser exigidas para liberar releases:
    - **Privacy Policy URL**
    - **Data safety**
    - **Content rating**
+   - **Declaração de ID de publicidade (Advertising ID)** (obrigatório para apps com target API 33+)
    - **Target audience / app access** (se aplicável)
 3. Confirmar políticas e declarações exigidas pelo Play Console.
+
+Nota (ID de publicidade):
+- No menu do Play Console, procure pelo item **"ID de publicidade"** (o caminho exato varia; geralmente fica em **Conteúdo do app** ou **Política**).
+- Se voce marcar que **nao** usa Advertising ID, o app nao deve declarar a permissao `com.google.android.gms.permission.AD_ID` no manifesto (senao o Play pode bloquear o release).
 
 Observações importantes:
 - Dependendo do estado do app no Play Console, pode ser necessário fazer **um primeiro upload** no track `internal` para finalizar o setup. Isso pode ser feito via **CI** (nao precisa ser manual).
