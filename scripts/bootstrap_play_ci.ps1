@@ -126,24 +126,84 @@ function Read-SecretPlain {
     }
 }
 
+function Invoke-NativeChecked {
+    param(
+        [Parameter(Mandatory = $true)][string]$FilePath,
+        [Parameter(Mandatory = $true)][string[]]$Args,
+        [string]$ErrorMessage = ""
+    )
+
+    $output = & $FilePath @Args 2>&1
+    $code = $LASTEXITCODE
+    if ($code -ne 0) {
+        $cmdLine = ($Args -join " ")
+        $prefix = if ($ErrorMessage) { $ErrorMessage } else { "$FilePath failed (exit $code): $cmdLine" }
+        Write-Error ($prefix + "`n" + ($output -join "`n"))
+        exit 1
+    }
+
+    return $output
+}
+
 function Ensure-GcloudAuth {
-    param([string]$ProjectId)
+    param([string]$ProjectId = "")
 
     Require-Command "gcloud" "gcloud not found. Install Google Cloud SDK and retry: https://cloud.google.com/sdk/docs/install"
 
-    try {
-        $active = (gcloud auth list --filter="status:ACTIVE" --format="value(account)" 2>$null).Trim()
-    } catch {
-        $active = ""
-    }
+    $active = ((& gcloud auth list --filter="status:ACTIVE" --format="value(account)" 2>$null) -join "`n").Trim()
 
     if (-not $active) {
         Write-Host "gcloud not authenticated. Starting: gcloud auth login" -ForegroundColor Yellow
-        gcloud auth login
+        & gcloud auth login
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "gcloud authentication failed (gcloud auth login)."
+            exit 1
+        }
     }
 
-    # Ensure project is set for subsequent commands.
-    gcloud config set project $ProjectId | Out-Null
+    if ($ProjectId) {
+        # Ensure project is set for subsequent commands.
+        & gcloud config set project $ProjectId | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to set gcloud project: $ProjectId"
+            exit 1
+        }
+    }
+}
+
+function Resolve-GcpProjectId {
+    param([Parameter(Mandatory = $true)][string]$ProjectIdOrNumber)
+
+    $value = $ProjectIdOrNumber.Trim()
+    if (-not $value) {
+        Write-Error "Missing GCP project value."
+        exit 1
+    }
+
+    # If the user passed a project NUMBER, map it to the project ID (required by many gcloud IAM commands).
+    if ($value -match "^[0-9]+$") {
+        Ensure-GcloudAuth
+        $rows = & gcloud projects list --format="value(projectId,projectNumber)" 2>$null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to list GCP projects (gcloud projects list)."
+            exit 1
+        }
+
+        foreach ($row in $rows) {
+            $parts = ($row -split '\s+')
+            if ($parts.Length -lt 2) { continue }
+            $pid = $parts[0].Trim()
+            $pnum = $parts[1].Trim()
+            if ($pnum -eq $value) {
+                return $pid
+            }
+        }
+
+        Write-Error "Project number $value not found in 'gcloud projects list'. Use the project ID (example: engenhodigital)."
+        exit 1
+    }
+
+    return $value
 }
 
 function Provision-WifForGitHub {
@@ -155,27 +215,32 @@ function Provision-WifForGitHub {
 
     Ensure-GcloudAuth -ProjectId $ProjectId
 
-    $projectNumber = (gcloud projects describe $ProjectId --format="value(projectNumber)").Trim()
+    $projectNumber = ((Invoke-NativeChecked -FilePath "gcloud" -Args @("projects", "describe", $ProjectId, "--format=value(projectNumber)")) -join "`n").Trim()
     if (-not $projectNumber) {
         Write-Error "Could not resolve projectNumber for project: $ProjectId"
         exit 1
     }
 
     Write-Host "Enabling Android Publisher API (androidpublisher.googleapis.com)..." -ForegroundColor Cyan
-    gcloud services enable androidpublisher.googleapis.com --project $ProjectId | Out-Null
+    Invoke-NativeChecked -FilePath "gcloud" -Args @("services", "enable", "androidpublisher.googleapis.com", "--project", $ProjectId) | Out-Null
 
     $saId = "gh-play-publisher"
     $saEmail = "$saId@$ProjectId.iam.gserviceaccount.com"
 
     Write-Host "Ensuring service account exists: $saEmail" -ForegroundColor Cyan
-    $saExists = $true
-    try {
-        gcloud iam service-accounts describe $saEmail --project $ProjectId | Out-Null
-    } catch {
-        $saExists = $false
-    }
+    & gcloud iam service-accounts describe $saEmail --project $ProjectId *> $null
+    $saExists = ($LASTEXITCODE -eq 0)
     if (-not $saExists) {
-        gcloud iam service-accounts create $saId --project $ProjectId --display-name "GitHub Play Publisher" | Out-Null
+        Invoke-NativeChecked -FilePath "gcloud" -Args @(
+            "iam",
+            "service-accounts",
+            "create",
+            $saId,
+            "--project",
+            $ProjectId,
+            "--display-name",
+            "GitHub Play Publisher"
+        ) | Out-Null
     }
 
     # Use deterministic pool/provider IDs per repo to avoid collisions across projects.
@@ -186,47 +251,68 @@ function Provision-WifForGitHub {
     $providerId = "github"
 
     Write-Host "Ensuring Workload Identity Pool exists: $poolId" -ForegroundColor Cyan
-    $poolExists = $true
-    try {
-        gcloud iam workload-identity-pools describe $poolId --project $ProjectId --location "global" | Out-Null
-    } catch {
-        $poolExists = $false
-    }
+    & gcloud iam workload-identity-pools describe $poolId --project $ProjectId --location "global" *> $null
+    $poolExists = ($LASTEXITCODE -eq 0)
     if (-not $poolExists) {
-        gcloud iam workload-identity-pools create $poolId `
-            --project $ProjectId `
-            --location "global" `
-            --display-name "GitHub Actions pool ($GithubOwner/$GithubRepo)" | Out-Null
+        Invoke-NativeChecked -FilePath "gcloud" -Args @(
+            "iam",
+            "workload-identity-pools",
+            "create",
+            $poolId,
+            "--project",
+            $ProjectId,
+            "--location",
+            "global",
+            "--display-name",
+            "GitHub Actions pool ($GithubOwner/$GithubRepo)"
+        ) | Out-Null
     }
 
     Write-Host "Ensuring Workload Identity Provider exists: $providerId" -ForegroundColor Cyan
-    $providerExists = $true
-    try {
-        gcloud iam workload-identity-pools providers describe $providerId `
-            --project $ProjectId `
-            --location "global" `
-            --workload-identity-pool $poolId | Out-Null
-    } catch {
-        $providerExists = $false
-    }
+    & gcloud iam workload-identity-pools providers describe $providerId `
+        --project $ProjectId `
+        --location "global" `
+        --workload-identity-pool $poolId *> $null
+    $providerExists = ($LASTEXITCODE -eq 0)
     if (-not $providerExists) {
         $cond = "assertion.repository=='$GithubOwner/$GithubRepo'"
-        gcloud iam workload-identity-pools providers create-oidc $providerId `
-            --project $ProjectId `
-            --location "global" `
-            --workload-identity-pool $poolId `
-            --display-name "GitHub Actions ($GithubOwner/$GithubRepo)" `
-            --issuer-uri "https://token.actions.githubusercontent.com" `
-            --attribute-mapping "google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref,attribute.actor=assertion.actor" `
-            --attribute-condition $cond | Out-Null
+        Invoke-NativeChecked -FilePath "gcloud" -Args @(
+            "iam",
+            "workload-identity-pools",
+            "providers",
+            "create-oidc",
+            $providerId,
+            "--project",
+            $ProjectId,
+            "--location",
+            "global",
+            "--workload-identity-pool",
+            $poolId,
+            "--display-name",
+            "GitHub Actions ($GithubOwner/$GithubRepo)",
+            "--issuer-uri",
+            "https://token.actions.githubusercontent.com",
+            "--attribute-mapping",
+            "google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref,attribute.actor=assertion.actor",
+            "--attribute-condition",
+            $cond
+        ) | Out-Null
     }
 
     Write-Host "Binding roles/iam.workloadIdentityUser to repo principalSet..." -ForegroundColor Cyan
     $member = "principalSet://iam.googleapis.com/projects/$projectNumber/locations/global/workloadIdentityPools/$poolId/attribute.repository/$GithubOwner/$GithubRepo"
-    gcloud iam service-accounts add-iam-policy-binding $saEmail `
-        --project $ProjectId `
-        --role "roles/iam.workloadIdentityUser" `
-        --member $member | Out-Null
+    Invoke-NativeChecked -FilePath "gcloud" -Args @(
+        "iam",
+        "service-accounts",
+        "add-iam-policy-binding",
+        $saEmail,
+        "--project",
+        $ProjectId,
+        "--role",
+        "roles/iam.workloadIdentityUser",
+        "--member",
+        $member
+    ) | Out-Null
 
     $providerResource = "projects/$projectNumber/locations/global/workloadIdentityPools/$poolId/providers/$providerId"
     return @{
@@ -343,7 +429,8 @@ if ($GcpProjectId) {
         exit 1
     }
     Write-Host "Provisioning WIF (keyless) on Google Cloud..." -ForegroundColor Cyan
-    $wif = Provision-WifForGitHub -ProjectId $GcpProjectId -GithubOwner $GithubOwner -GithubRepo $GithubRepo
+    $resolvedProjectId = Resolve-GcpProjectId -ProjectIdOrNumber $GcpProjectId
+    $wif = Provision-WifForGitHub -ProjectId $resolvedProjectId -GithubOwner $GithubOwner -GithubRepo $GithubRepo
 
     Write-Host "Setting GitHub Actions variables (WIF)..." -ForegroundColor Cyan
     @"
