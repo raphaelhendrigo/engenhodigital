@@ -85,10 +85,12 @@ Pontos principais:
 2. Habilitar Play App Signing (Setup -> App integrity).
    - Se o Play Console pedir o certificado da upload key, selecione o arquivo gerado pelo bootstrap:
      - `c:\apps\engenhodigital\keystore\engenho-digital-upload-cert.pem` (Windows)
-3. Linkar um projeto do Google Cloud na conta do Play Console:
-   - Developer account -> API access:
-     - Link curto (as vezes redireciona): https://play.google.com/console/developers/api-access
-     - Se redirecionar, use o link "fixo" com seu Developer Account ID (ver `CHECKLIST_MANUAL_PLAY_CONSOLE.md`)
+3. (Opcional) Linkar um projeto do Google Cloud na conta do Play Console:
+   - Developer account -> API access
+   - Link curto (as vezes redireciona): https://play.google.com/console/developers/api-access
+   - Link "fixo" (use seu Developer Account ID): https://play.google.com/console/u/0/developers/<DEVELOPER_ACCOUNT_ID>/api-access
+   - Dica: se você cair em `.../developers/<ID>/app-list`, troque `app-list` por `api-access`.
+   - Se a pagina de **API access** redirecionar/nao existir, siga em frente: o fluxo via **Users and permissions** e suficiente.
 4. Conceder acesso para a service account (no Play Console, no app):
    - API access -> Service accounts -> Grant access
 5. Completar formulários obrigatórios antes do primeiro release (Store listing, Data safety, Content rating, etc).

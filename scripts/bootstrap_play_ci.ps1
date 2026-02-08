@@ -494,13 +494,22 @@ Write-Host "1) Create the app (if not created yet): https://play.google.com/cons
 Write-Host "2) Enable Play App Signing (Setup -> App integrity). If asked for upload key cert, select:"
 Write-Host "   $certFullPath"
 if ($wif -and $wif.ProjectId) {
-    Write-Host "3) Link the Google Cloud project in Play Console (Developer account -> API access): https://play.google.com/console/developers/api-access"
+    Write-Host "3) (Optional) Link the Google Cloud project in Play Console (Developer account -> API access)."
+    Write-Host "   - Short link (may redirect): https://play.google.com/console/developers/api-access"
+    Write-Host "   - If you get redirected to .../developers/<ID>/app-list, replace app-list with api-access:"
+    Write-Host "     https://play.google.com/console/u/0/developers/<DEVELOPER_ACCOUNT_ID>/api-access"
     Write-Host "   Project ID: $($wif.ProjectId)"
 } else {
-    Write-Host "3) Link a Google Cloud project (Developer account -> API access): https://play.google.com/console/developers/api-access"
+    Write-Host "3) (Optional) Link a Google Cloud project (Developer account -> API access)."
+    Write-Host "   - Short link (may redirect): https://play.google.com/console/developers/api-access"
+    Write-Host "   - If you get redirected to .../developers/<ID>/app-list, replace app-list with api-access:"
+    Write-Host "     https://play.google.com/console/u/0/developers/<DEVELOPER_ACCOUNT_ID>/api-access"
 }
 if ($wif) {
-    Write-Host "4) Grant access to the service account in Play Console (API access -> Service accounts -> Grant access):"
+    Write-Host "4) Grant access to the service account in Play Console:"
+    Write-Host "   - Option A (if API access page exists): API access -> Service accounts -> Grant access"
+    Write-Host "   - Option B (works even if API access redirects): Users and permissions -> Invite new users"
+    Write-Host "   Service account email:"
     Write-Host "   $($wif.ServiceAccountEmail)"
 }
 Write-Host "5) Complete required forms (Store listing, Data safety, Content rating, etc.) before first release."

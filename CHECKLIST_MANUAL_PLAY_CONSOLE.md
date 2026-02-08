@@ -13,6 +13,10 @@ Observação importante: **API access** fica no nível da **conta do desenvolved
   - Link curto: `https://play.google.com/console/developers/users-and-permissions`
   - Link "fixo": `https://play.google.com/console/u/0/developers/<DEVELOPER_ACCOUNT_ID>/users-and-permissions`
 
+Observacao (importante):
+- Em algumas contas, a pagina **API access** pode nao existir, redirecionar para `app-list`, ou ficar visivel apenas para o **Account Owner**.
+- Para o nosso CI/CD (Fastlane + Android Publisher API), o caminho mais confiavel e: **Users and permissions -> Invite new users** e conceder permissoes ao e-mail da service account.
+
 ## Onde encontrar o Developer Account ID (19 dígitos)
 O **ID da conta de desenvolvedor** é um número de **19 dígitos**.
 
@@ -59,12 +63,16 @@ keytool -export -rfc \
   -file keystore/engenho-digital-upload-cert.pem
 ```
 
-## 3) Linkar um projeto Google Cloud ao Play Console
+## 3) (Opcional) Linkar um projeto Google Cloud ao Play Console
 1. No Play Console, vá em **Setup -> API access**.
    - Link direto (curto): `https://play.google.com/console/developers/api-access`
    - Se redirecionar para `app-list`, use o link "fixo" com seu Developer Account ID:
      - `https://play.google.com/console/u/0/developers/<DEVELOPER_ACCOUNT_ID>/api-access`
 2. **Link** um projeto existente do Google Cloud ou crie um novo.
+
+Observacao:
+- O Google indica que nao e mais necessario linkar a conta do Play Console a um projeto do Google Cloud para usar a Google Play Developer API, desde que voce conceda as permissoes da service account em **Users and permissions**.
+- Se o menu/pagina de **API access** nao aparecer para voce, siga para o passo 6 (Users and permissions).
 
 ## 4) Habilitar a Google Play Developer API
 1. No Google Cloud Console (projeto linkado), habilite:
@@ -90,14 +98,15 @@ Existem 2 modos suportados neste repo:
 3. Guarde o arquivo JSON com segurança (nao comitar).
 
 ## 6) Conceder acesso da Service Account no Play Console (mínimo necessário)
-1. No Play Console: **Setup -> API access**.
-   - Link direto (curto): `https://play.google.com/console/developers/api-access`
-   - Link "fixo": `https://play.google.com/console/u/0/developers/<DEVELOPER_ACCOUNT_ID>/api-access`
-2. Confirme que o projeto Google Cloud está **linkado** (seção "Linked project").
-3. Em **Service accounts**, encontre a service account do projeto linkado e clique em **Grant access**.
-4. Se necessário, em **Users and permissions**, confirme que o e-mail `client_email` está com acesso ao app.
+O jeito mais simples (e que funciona mesmo quando "API access" redireciona) e via **Users and permissions**:
+
+1. Play Console -> **Users and permissions**
+   - Link curto: `https://play.google.com/console/developers/users-and-permissions`
+2. Clique em **Invite new users** e convide o e-mail da service account.
    - Exemplo (WIF bootstrap): `gh-play-publisher@<GCP_PROJECT_ID>.iam.gserviceaccount.com`
-5. Conceda permissões mínimas para publicar no(s) track(s) desejado(s).
+3. No usuario da service account, configure:
+   - **App permissions**: adicione o app e selecione papel/permissoes equivalentes a **Release manager** (para conseguir publicar em tracks).
+4. Salve.
 
 Sugestão pragmática:
 - Para publicar `internal` e promover para `production`: papel equivalente a **Release manager** (somente para o app).
