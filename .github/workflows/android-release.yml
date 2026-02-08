@@ -27,7 +27,7 @@ on:
         required: false
         default: "completed"
       release_name:
-        description: "Optional release name (shown in Play Console)"
+        description: "Optional label used as a fallback for version_name and release notes title. Note: supply does not support setting the Play Console 'release name'."
         required: false
         default: ""
 
@@ -434,6 +434,37 @@ jobs:
           set -euo pipefail
           python3 -m pip install --quiet "Pillow==10.2.0"
           python3 scripts/generate_play_store_assets.py --locale "pt-BR"
+
+      - name: Generate Play Store release notes (Fastlane changelog)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          LOCALE="pt-BR"
+          VERSION_CODE="${ANDROID_NUMERIC_VERSION:-}"
+          VERSION_NAME="${ANDROID_VERSION_NAME:-}"
+
+          if [ -z "$VERSION_CODE" ]; then
+            echo "ANDROID_NUMERIC_VERSION is missing; cannot generate Play changelog file." >&2
+            exit 1
+          fi
+
+          CHANGELOG_DIR="fastlane/metadata/android/${LOCALE}/changelogs"
+          mkdir -p "$CHANGELOG_DIR"
+
+          # Minimal default release notes to satisfy Play Console requirements.
+          # You can customize the template here anytime.
+          TITLE="Atualizacao"
+          if [ -n "$VERSION_NAME" ]; then
+            TITLE="Versao ${VERSION_NAME}"
+          elif [ -n "${PLAY_RELEASE_NAME:-}" ]; then
+            TITLE="${PLAY_RELEASE_NAME}"
+          fi
+
+          {
+            echo "${TITLE}"
+            echo "- Atualizacoes e melhorias."
+          } > "${CHANGELOG_DIR}/${VERSION_CODE}.txt"
 
       - name: Build universal APK from AAB (bundletool)
         shell: bash
