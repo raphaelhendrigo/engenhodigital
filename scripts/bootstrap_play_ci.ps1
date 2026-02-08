@@ -98,6 +98,34 @@ function New-RandomToken {
     return $s.Substring(0, $Length)
 }
 
+function Read-DotenvFile {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    $map = @{}
+    foreach ($raw in (Get-Content -Path $Path -ErrorAction Stop)) {
+        $line = $raw.Trim()
+        if (-not $line -or $line.StartsWith("#")) { continue }
+        $idx = $line.IndexOf("=")
+        if ($idx -lt 1) { continue }
+        $k = $line.Substring(0, $idx).Trim()
+        $v = $line.Substring($idx + 1).Trim()
+        if ($k) { $map[$k] = $v }
+    }
+    return $map
+}
+
+function Read-SecretPlain {
+    param([Parameter(Mandatory = $true)][string]$Prompt)
+
+    $sec = Read-Host $Prompt -AsSecureString
+    $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec)
+    try {
+        return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr)
+    } finally {
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+    }
+}
+
 function Ensure-GcloudAuth {
     param([string]$ProjectId)
 
@@ -224,9 +252,6 @@ $repoFullName = "$GithubOwner/$GithubRepo"
 Write-Host "Repo: $repoFullName" -ForegroundColor Green
 
 # 1) Generate upload keystore + cert
-$keystorePassword = New-RandomToken -Length 48
-$keyPassword = New-RandomToken -Length 48
-
 $keystoreFullPath = [System.IO.Path]::GetFullPath((Join-Path $repoRoot $KeystorePath))
 $keystoreDir = Split-Path -Parent $keystoreFullPath
 $keystoreFile = Split-Path -Leaf $keystoreFullPath
@@ -234,22 +259,59 @@ $certFile = ([System.IO.Path]::GetFileNameWithoutExtension($keystoreFile)) + "-c
 $certFullPath = Join-Path $keystoreDir $certFile
 $credLocalPath = Join-Path $keystoreDir (([System.IO.Path]::GetFileNameWithoutExtension($keystoreFile)) + ".credentials.local.txt")
 
-Write-Host "Generating upload keystore (Docker + keytool)..." -ForegroundColor Cyan
-& (Join-Path $repoRoot "scripts\\generate_keystore_docker.ps1") `
-    -KeystorePath $KeystorePath `
-    -Alias $KeyAlias `
-    -KeystorePassword $keystorePassword `
-    -KeyPassword $keyPassword `
-    -Dname $Dname `
-    -ValidityDays $ValidityDays
+$keystorePassword = ""
+$keyPassword = ""
+if (Test-Path $credLocalPath) {
+    $envMap = Read-DotenvFile -Path $credLocalPath
+    if ($envMap.ContainsKey("ANDROID_KEYSTORE_PASSWORD")) { $keystorePassword = $envMap["ANDROID_KEYSTORE_PASSWORD"] }
+    if ($envMap.ContainsKey("ANDROID_KEY_PASSWORD")) { $keyPassword = $envMap["ANDROID_KEY_PASSWORD"] }
+    if ($envMap.ContainsKey("ANDROID_KEY_ALIAS") -and $envMap["ANDROID_KEY_ALIAS"]) { $KeyAlias = $envMap["ANDROID_KEY_ALIAS"] }
+}
+
+if (-not (Test-Path $keystoreFullPath)) {
+    $keystorePassword = New-RandomToken -Length 48
+    $keyPassword = New-RandomToken -Length 48
+
+    Write-Host "Generating upload keystore (Docker + keytool)..." -ForegroundColor Cyan
+    & (Join-Path $repoRoot "scripts\\generate_keystore_docker.ps1") `
+        -KeystorePath $KeystorePath `
+        -Alias $KeyAlias `
+        -KeystorePassword $keystorePassword `
+        -KeyPassword $keyPassword `
+        -Dname $Dname `
+        -ValidityDays $ValidityDays
+} else {
+    Write-Host "Keystore already exists. Reusing: $keystoreFullPath" -ForegroundColor Yellow
+    if (-not $keystorePassword) {
+        $keystorePassword = Read-SecretPlain -Prompt "Enter existing keystore password (will be stored only in GitHub Secrets)"
+    }
+    if (-not $keyPassword) {
+        $keyPassword = Read-SecretPlain -Prompt "Enter existing key password (alias password)"
+    }
+}
 
 if (-not (Test-Path $keystoreFullPath)) {
     Write-Error "Keystore not found after generation: $keystoreFullPath"
     exit 1
 }
+
 if (-not (Test-Path $certFullPath)) {
-    Write-Error "Cert not found after generation: $certFullPath"
-    exit 1
+    Write-Host "Upload certificate not found. Exporting cert via Docker + keytool..." -ForegroundColor Cyan
+    Require-Command "docker" "Docker not found. Install Docker Desktop and try again."
+    $image = "eclipse-temurin:17-jdk"
+    docker pull $image | Out-Null
+    docker run --rm `
+      -v "${keystoreDir}:/out" `
+      $image `
+      keytool -export -rfc `
+        -alias "$KeyAlias" `
+        -keystore "/out/$keystoreFile" `
+        -storepass "$keystorePassword" `
+        -file "/out/$certFile"
+    if (-not (Test-Path $certFullPath)) {
+        Write-Error "Upload certificate was not created: $certFullPath"
+        exit 1
+    }
 }
 
 # Store locally (gitignored) so you can recover for local signing if needed.
@@ -276,6 +338,10 @@ $dotenv | gh secret set -f - -R $repoFullName | Out-Null
 # 3) Play credentials: WIF preferred, JSON fallback
 $wif = $null
 if ($GcpProjectId) {
+    if ($GcpProjectId -match "[<>]" -or $GcpProjectId -in @("SEU_PROJECT_ID_REAL", "YOUR_PROJECT_ID", "<GCP_PROJECT_ID>")) {
+        Write-Error "Invalid -GcpProjectId value. Pass the real Google Cloud project ID (example: my-project-123)."
+        exit 1
+    }
     Write-Host "Provisioning WIF (keyless) on Google Cloud..." -ForegroundColor Cyan
     $wif = Provision-WifForGitHub -ProjectId $GcpProjectId -GithubOwner $GithubOwner -GithubRepo $GithubRepo
 
