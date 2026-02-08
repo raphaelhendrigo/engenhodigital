@@ -221,8 +221,15 @@ function Provision-WifForGitHub {
         exit 1
     }
 
-    Write-Host "Enabling Android Publisher API (androidpublisher.googleapis.com)..." -ForegroundColor Cyan
-    Invoke-NativeChecked -FilePath "gcloud" -Args @("services", "enable", "androidpublisher.googleapis.com", "--project", $ProjectId) | Out-Null
+    Write-Host "Enabling required APIs (Android Publisher + IAM Credentials)..." -ForegroundColor Cyan
+    Invoke-NativeChecked -FilePath "gcloud" -Args @(
+        "services",
+        "enable",
+        "androidpublisher.googleapis.com",
+        "iamcredentials.googleapis.com",
+        "--project",
+        $ProjectId
+    ) | Out-Null
 
     $saId = "gh-play-publisher"
     $saEmail = "$saId@$ProjectId.iam.gserviceaccount.com"

@@ -199,8 +199,8 @@ if [ -n "$GCP_PROJECT_ID" ]; then
     exit 1
   fi
 
-  echo "Enabling Android Publisher API (androidpublisher.googleapis.com)..."
-  gcloud services enable androidpublisher.googleapis.com --project "$GCP_PROJECT_ID" >/dev/null
+  echo "Enabling required APIs (Android Publisher + IAM Credentials)..."
+  gcloud services enable androidpublisher.googleapis.com iamcredentials.googleapis.com --project "$GCP_PROJECT_ID" >/dev/null
 
   sa_id="gh-play-publisher"
   sa_email="${sa_id}@${GCP_PROJECT_ID}.iam.gserviceaccount.com"
