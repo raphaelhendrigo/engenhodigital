@@ -227,11 +227,7 @@ Write-Host "Repo: $repoFullName" -ForegroundColor Green
 $keystorePassword = New-RandomToken -Length 48
 $keyPassword = New-RandomToken -Length 48
 
-$keystoreFullPath = (Resolve-Path (Join-Path $repoRoot $KeystorePath)).Path 2>$null
-if (-not $keystoreFullPath) {
-    # Resolve-Path fails if file doesn't exist yet; build an absolute path manually.
-    $keystoreFullPath = (Join-Path $repoRoot $KeystorePath)
-}
+$keystoreFullPath = [System.IO.Path]::GetFullPath((Join-Path $repoRoot $KeystorePath))
 $keystoreDir = Split-Path -Parent $keystoreFullPath
 $keystoreFile = Split-Path -Leaf $keystoreFullPath
 $certFile = ([System.IO.Path]::GetFileNameWithoutExtension($keystoreFile)) + "-cert.pem"
