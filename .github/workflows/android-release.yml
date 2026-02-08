@@ -466,6 +466,19 @@ jobs:
             echo "- Atualizacoes e melhorias."
           } > "${CHANGELOG_DIR}/${VERSION_CODE}.txt"
 
+      - name: Sync Play Store listing (text/images) via Android Publisher API
+        shell: bash
+        env:
+          PLAY_JSON_KEY_PATH: ${{ env.PLAY_JSON_KEY_PATH }}
+          PLAY_PACKAGE_NAME: ${{ env.PLAY_PACKAGE_NAME }}
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet \
+            "google-api-python-client>=2,<3" \
+            "google-auth>=2,<3" \
+            "google-auth-httplib2>=0.2,<1"
+          python3 scripts/sync_play_store_listing.py --locale "pt-BR"
+
       - name: Build universal APK from AAB (bundletool)
         shell: bash
         env:

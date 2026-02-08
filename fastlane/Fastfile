@@ -38,11 +38,6 @@ platform :android do
     track = ENV["PLAY_TRACK"] || "internal"
     release_status = ENV["PLAY_RELEASE_STATUS"] || "completed"
     metadata_path = File.expand_path(File.join(__dir__, "metadata/android"))
-    has_metadata = Dir.exist?(metadata_path)
-
-    # Keep listing in sync (so the Play Console does not require manual "Detalhes do app" edits).
-    # If this fails due to missing permissions, the binary upload would likely fail too.
-    sync_listing if has_metadata
 
     # If the upload key was recently reset in Play Console, Google can temporarily reject uploads
     # with: "The upload certificate ... is not yet valid because it has been recently reset."
