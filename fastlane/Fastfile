@@ -15,7 +15,6 @@ platform :android do
       release_status: release_status,
       json_key: ENV.fetch("PLAY_JSON_KEY_PATH"),
       package_name: ENV.fetch("PLAY_PACKAGE_NAME"),
-      release_name: ENV["PLAY_RELEASE_NAME"],
       metadata_path: metadata_path,
       # If metadata folder exists, keep the store listing in sync via CI (no manual clicks).
       # If it doesn't exist, do not fail the release upload.
