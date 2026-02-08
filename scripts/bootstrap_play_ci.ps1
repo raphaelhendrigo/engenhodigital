@@ -114,6 +114,26 @@ function Read-DotenvFile {
     return $map
 }
 
+function Get-PemCertSha1Fingerprint {
+    param([Parameter(Mandatory = $true)][string]$PemPath)
+
+    if (-not (Test-Path $PemPath)) {
+        throw "PEM file not found: $PemPath"
+    }
+
+    $pem = Get-Content -Raw -Path $PemPath
+    $b64 = $pem -replace "-----BEGIN CERTIFICATE-----", ""
+    $b64 = $b64 -replace "-----END CERTIFICATE-----", ""
+    $b64 = $b64 -replace "\s", ""
+    if (-not $b64) {
+        throw "Could not parse certificate PEM: $PemPath"
+    }
+
+    $bytes = [Convert]::FromBase64String($b64)
+    $sha1 = [System.Security.Cryptography.SHA1]::Create().ComputeHash($bytes)
+    return (($sha1 | ForEach-Object { $_.ToString("X2") }) -join ":")
+}
+
 function Read-SecretPlain {
     param([Parameter(Mandatory = $true)][string]$Prompt)
 
@@ -482,6 +502,16 @@ Write-Host ""
 Write-Host "Files generated (keep these OUT of git):" -ForegroundColor Green
 Write-Host "- Keystore: $keystoreFullPath"
 Write-Host "- Upload cert (PEM): $certFullPath"
+$certSha1 = ""
+try {
+    $certSha1 = Get-PemCertSha1Fingerprint -PemPath $certFullPath
+} catch {
+    # Best-effort; do not fail bootstrap because of fingerprint parsing.
+    $certSha1 = ""
+}
+if ($certSha1) {
+    Write-Host "- Upload cert SHA1 (Play expects this): $certSha1"
+}
 Write-Host "- Local credentials (gitignored): $credLocalPath"
 
 Write-Host ""

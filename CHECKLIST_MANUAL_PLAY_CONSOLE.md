@@ -195,3 +195,19 @@ Se o workflow falhar com:
      Get-ChildItem .\\_play_artifacts -Recurse -Filter *.aab | Select-Object -First 1 | % FullName
      ```
 4. Aguarde 2-5 minutos e rode o workflow novamente.
+
+## Troubleshooting (CI) - "signed with the wrong key"
+Se o workflow falhar com algo como:
+`The Android App Bundle was signed with the wrong key. Found: SHA1: ... expected: SHA1: ...`
+
+Isso significa que o Play Console esta esperando uma **upload key** (certificado) diferente da que o CI esta usando para assinar o `.aab`.
+
+1. Descubra o SHA1 do certificado da sua upload key (gerada pelo bootstrap):
+   - Arquivo: `c:\\apps\\engenhodigital\\keystore\\engenho-digital-upload-cert.pem`
+   - O `scripts/bootstrap_play_ci.ps1` imprime o SHA1 ao final (linha "Upload cert SHA1").
+2. No Play Console (ONE-TIME SETUP):
+   - App -> **Integridade do app** -> **Assinatura do app** (App signing)
+   - Na seção **Upload key certificate**, use **Reset/Change upload key** e selecione:
+     - `c:\\apps\\engenhodigital\\keystore\\engenho-digital-upload-cert.pem`
+   - Depois disso, o SHA1 esperado no Play Console deve bater com o SHA1 impresso pelo bootstrap.
+3. Aguarde alguns minutos e rode o workflow novamente.

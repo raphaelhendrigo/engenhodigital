@@ -269,6 +269,28 @@ echo ""
 echo "Files generated (keep these OUT of git):"
 echo "- Keystore: $keystore_abs"
 echo "- Upload cert (PEM): $cert_abs"
+if [ -f "$cert_abs" ]; then
+  if command -v openssl >/dev/null 2>&1; then
+    fp="$(openssl x509 -in "$cert_abs" -noout -fingerprint -sha1 2>/dev/null | sed -E 's/^SHA1 Fingerprint=//' | tr -d '\r')"
+    if [ -n "${fp:-}" ]; then
+      echo "- Upload cert SHA1 (Play expects this): $fp"
+    fi
+  elif command -v python3 >/dev/null 2>&1; then
+    fp="$(python3 - <<'PY' "$cert_abs"
+import base64, hashlib, re, sys
+p = sys.argv[1]
+pem = open(p, "rb").read().decode("utf-8", "ignore")
+b64 = re.sub(r"-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\\s+", "", pem)
+der = base64.b64decode(b64)
+fp = hashlib.sha1(der).hexdigest().upper()
+print(":".join(fp[i:i+2] for i in range(0, len(fp), 2)))
+PY
+)"
+    if [ -n "${fp:-}" ]; then
+      echo "- Upload cert SHA1 (Play expects this): $fp"
+    fi
+  fi
+fi
 echo "- Local credentials (gitignored): $cred_abs"
 
 echo ""
