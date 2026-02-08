@@ -10,9 +10,17 @@ platform :android do
       next
     end
 
+    # `supply` currently requires a track/release context even when only syncing listing assets.
+    # Defaulting to `production` can crash when production has no releases yet; use `internal` which
+    # exists for new apps once the first internal test build is uploaded.
+    #
+    # Note: store listing is app-wide, not track-specific.
+    track = ENV["PLAY_LISTING_TRACK"] || "internal"
+
     supply(
       json_key: ENV.fetch("PLAY_JSON_KEY_PATH"),
       package_name: ENV.fetch("PLAY_PACKAGE_NAME"),
+      track: track,
       metadata_path: metadata_path,
       # Listing sync only
       skip_upload_apk: true,
