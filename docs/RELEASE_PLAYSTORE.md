@@ -91,6 +91,7 @@ Pontos principais:
 4. Conceder acesso para a service account (no Play Console, no app):
    - API access -> Service accounts -> Grant access
 5. Completar formulários obrigatórios antes do primeiro release (Store listing, Data safety, Content rating, etc).
+6. Para publicar em **production**, o Play Console pode exigir **Teste fechado** (ex.: 12 testadores por 14 dias) antes de liberar acesso de producao.
 
 ## Rodar release local (Linux/WSL) (opcional)
 

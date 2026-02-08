@@ -105,7 +105,14 @@ Algumas etapas costumam ser exigidas para liberar releases:
    - **Target audience / app access** (se aplicável)
 3. Confirmar políticas e declarações exigidas pelo Play Console.
 
-Observação: dependendo do estado do app no Play Console, pode ser necessário fazer **um primeiro upload manual** no track `internal` para finalizar o setup. Depois disso, o CI assume.
+Observações importantes:
+- Dependendo do estado do app no Play Console, pode ser necessário fazer **um primeiro upload** no track `internal` para finalizar o setup. Isso pode ser feito via **CI** (nao precisa ser manual).
+- Para conseguir publicar em **production**, o Play Console pode exigir o fluxo de **Teste fechado**:
+  - ter pelo menos **12 testadores** que aceitaram participar
+  - manter o teste por pelo menos **14 dias**
+  - depois disso, solicitar o acesso de producao
+  - Isso e uma regra do Play Console (inevitavel) e nao da para automatizar 100%.
+  - O CI pode (e deve) continuar automatizando os uploads em `internal`/`beta` durante esse periodo.
 
 ## 8) Configurar GitHub Secrets (obrigatório para CI/CD)
 No GitHub: `Settings -> Secrets and variables -> Actions`:
