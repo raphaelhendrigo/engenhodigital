@@ -37,7 +37,9 @@ permissions:
 
 concurrency:
   group: android-release-${{ github.ref }}
-  cancel-in-progress: true
+  # Avoid auto-canceling long-running retries (e.g. upload key reset propagation).
+  # If you need to stop a run, cancel it explicitly in the Actions UI/CLI.
+  cancel-in-progress: false
 
 jobs:
   validate-config:
