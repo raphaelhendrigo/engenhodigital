@@ -40,12 +40,17 @@ function Ensure-Gh {
 }
 
 function Ensure-GhAuth {
-    try {
-        gh auth status -h github.com | Out-Null
+    # Native commands don't throw on non-zero exit code; rely on $LASTEXITCODE.
+    gh auth status -h github.com *> $null
+    if ($LASTEXITCODE -eq 0) {
         return
-    } catch {
-        Write-Host "GitHub CLI not authenticated. Starting: gh auth login" -ForegroundColor Yellow
-        gh auth login
+    }
+
+    Write-Host "GitHub CLI not authenticated. Starting: gh auth login" -ForegroundColor Yellow
+    gh auth login
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "GitHub authentication failed (gh auth login)."
+        exit 1
     }
 }
 
@@ -62,8 +67,12 @@ function Get-GitHubRepoFromOrigin {
 
     # Supports:
     # - https://github.com/OWNER/REPO.git
+    # - https://github.com/OWNER/REPO
     # - git@github.com:OWNER/REPO.git
-    if ($origin -match "github\\.com[:/](?<owner>[^/]+)/(?<repo>[^/\\.]+)(?:\\.git)?$") {
+    # - git@github.com:OWNER/REPO
+    #
+    # PowerShell strings do NOT treat backslash as an escape character, so we must not double-escape.
+    if ($origin -match "github\.com[:/](?<owner>[^/]+)/(?<repo>[^/]+?)(?:\.git)?$") {
         return @{
             Owner = $Matches["owner"]
             Repo  = $Matches["repo"]
@@ -325,4 +334,3 @@ if ($wif) {
     Write-Host "   $($wif.ServiceAccountEmail)"
 }
 Write-Host "5) Complete required forms (Store listing, Data safety, Content rating, etc.) before first release."
-
