@@ -459,7 +459,7 @@ GCP_SERVICE_ACCOUNT_EMAIL=$($wif.ServiceAccountEmail)
     $raw | gh secret set PLAY_SERVICE_ACCOUNT_JSON -R $repoFullName | Out-Null
 } else {
     Write-Host "Play auth not configured yet." -ForegroundColor Yellow
-    Write-Host "Preferred: re-run with -GcpProjectId <YOUR_PROJECT_ID> to provision WIF (keyless)." -ForegroundColor Yellow
+    Write-Host "Preferred: re-run with -GcpProjectId <PROJECT_ID> to provision WIF (keyless). Example: engenhodigital" -ForegroundColor Yellow
     Write-Host "Fallback: re-run with -PlayServiceAccountJsonPath <path-to-json> to set PLAY_SERVICE_ACCOUNT_JSON." -ForegroundColor Yellow
 }
 

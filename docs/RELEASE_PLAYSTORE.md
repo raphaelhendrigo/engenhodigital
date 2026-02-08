@@ -8,7 +8,7 @@ Este repositório **não** é um app Android Gradle (Flutter/RN/Ionic/Cordova). 
 cd c:\apps\engenhodigital
 gh auth login
 gcloud auth login
-.\scripts\bootstrap_play_ci.ps1 -GcpProjectId "<GCP_PROJECT_ID>"
+.\scripts\bootstrap_play_ci.ps1 -GcpProjectId "<GCP_PROJECT_ID (ex: engenhodigital)>"
 git tag v1.2.3; git push origin v1.2.3
 ```
 
