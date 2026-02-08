@@ -316,6 +316,8 @@ function Provision-WifForGitHub {
 
     $providerResource = "projects/$projectNumber/locations/global/workloadIdentityPools/$poolId/providers/$providerId"
     return @{
+        ProjectId = $ProjectId
+        ProjectNumber = $projectNumber
         ServiceAccountEmail = $saEmail
         WorkloadIdentityProvider = $providerResource
     }
@@ -477,7 +479,12 @@ Write-Host "ONE-TIME SETUP (Play Console) - inevitable UI steps:" -ForegroundCol
 Write-Host "1) Create the app (if not created yet): https://play.google.com/console"
 Write-Host "2) Enable Play App Signing (Setup -> App integrity). If asked for upload key cert, select:"
 Write-Host "   $certFullPath"
-Write-Host "3) Link a Google Cloud project (Developer account -> API access): https://play.google.com/console/developers/api-access"
+if ($wif -and $wif.ProjectId) {
+    Write-Host "3) Link the Google Cloud project in Play Console (Developer account -> API access): https://play.google.com/console/developers/api-access"
+    Write-Host "   Project ID: $($wif.ProjectId)"
+} else {
+    Write-Host "3) Link a Google Cloud project (Developer account -> API access): https://play.google.com/console/developers/api-access"
+}
 if ($wif) {
     Write-Host "4) Grant access to the service account in Play Console (API access -> Service accounts -> Grant access):"
     Write-Host "   $($wif.ServiceAccountEmail)"
