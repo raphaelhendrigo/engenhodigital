@@ -39,6 +39,11 @@ platform :android do
     release_status = ENV["PLAY_RELEASE_STATUS"] || "completed"
     metadata_path = File.expand_path(File.join(__dir__, "metadata/android"))
 
+    # Some brand-new apps remain in "draft" state in Play Console until the one-time onboarding is complete.
+    # In that state, Play rejects non-draft releases via API with:
+    # "Only releases with status draft may be created on draft app."
+    draft_app_marker = "only releases with status draft may be created on draft app"
+
     # If the upload key was recently reset in Play Console, Google can temporarily reject uploads
     # with: "The upload certificate ... is not yet valid because it has been recently reset."
     # This retry avoids manual reruns during that one-time propagation window.
@@ -46,16 +51,18 @@ platform :android do
     sleep_seconds = Integer(ENV.fetch("PLAY_UPLOAD_KEY_RESET_SLEEP_SECONDS", "300"))
     error_marker = "upload certificate this APK is signed with is not yet valid because it has been recently reset"
 
+    effective_release_status = release_status
+    did_retry_as_draft = false
     attempt = 1
     begin
       upload_to_play_store(
         aab: aab_path,
         track: track,
-        release_status: release_status,
+        release_status: effective_release_status,
         json_key: ENV.fetch("PLAY_JSON_KEY_PATH"),
         package_name: ENV.fetch("PLAY_PACKAGE_NAME"),
         metadata_path: metadata_path,
-        # Store listing is synced via `sync_listing` above. Keep binary upload focused.
+        # Store listing is synced via CI (scripts/sync_play_store_listing.py). Keep binary upload focused.
         skip_upload_metadata: true,
         skip_upload_images: true,
         skip_upload_screenshots: true,
@@ -64,6 +71,16 @@ platform :android do
       )
     rescue StandardError => e
       msg = (e.message || "").downcase
+      if msg.include?(draft_app_marker) && !did_retry_as_draft && effective_release_status.to_s.downcase != "draft"
+        UI.important(
+          "Play Console reports this app is still in DRAFT state. Retrying upload as release_status=draft.\n" \
+          "ONE-TIME: after you roll out at least one release in Play Console (and complete required forms), " \
+          "future CI uploads can use release_status=completed."
+        )
+        effective_release_status = "draft"
+        did_retry_as_draft = true
+        retry
+      end
       if msg.include?(error_marker)
         if attempt < max_attempts
           UI.important(

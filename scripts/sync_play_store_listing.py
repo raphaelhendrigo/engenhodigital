@@ -247,10 +247,27 @@ def main() -> None:
     if args.dry_run:
         print("[dry-run] edits.commit")
     else:
-        service.edits().commit(packageName=listing.package_name, editId=edit_id).execute()
+        try:
+            service.edits().commit(packageName=listing.package_name, editId=edit_id).execute()
+        except Exception as e:
+            # In early Play Console onboarding, apps can remain in "draft" state. In that state,
+            # the Android Publisher API can reject edit commits with this message.
+            # We don't want to block the whole CI release pipeline on a store listing sync that
+            # Play currently refuses to accept.
+            msg = str(e)
+            lowered = msg.lower()
+            if "only releases with status draft may be created on draft app" in lowered:
+                print(
+                    "WARN: Play Console still considers this app in DRAFT state. "
+                    "The Android Publisher API rejected the listing edit commit.\n"
+                    "ONE-TIME SETUP: create/roll out at least one release via Play Console (or run CI with release_status=draft and then roll out in the UI). "
+                    "After the app is no longer draft, re-run this workflow and the listing sync will succeed."
+                )
+                return
+            raise
+
         print(f"Synced Play Store listing for {listing.package_name} ({listing.locale}).")
 
 
 if __name__ == "__main__":
     main()
-
