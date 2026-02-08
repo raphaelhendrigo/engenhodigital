@@ -49,7 +49,7 @@ platform :android do
     # This retry avoids manual reruns during that one-time propagation window.
     max_attempts = Integer(ENV.fetch("PLAY_UPLOAD_KEY_RESET_MAX_ATTEMPTS", "12"))
     sleep_seconds = Integer(ENV.fetch("PLAY_UPLOAD_KEY_RESET_SLEEP_SECONDS", "300"))
-    error_marker = "upload certificate this APK is signed with is not yet valid because it has been recently reset"
+    error_marker = "upload certificate this apk is signed with is not yet valid because it has been recently reset"
 
     effective_release_status = release_status
     did_retry_as_draft = false
