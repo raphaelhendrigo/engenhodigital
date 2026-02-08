@@ -179,11 +179,19 @@ Link direto (este repositório):
 Se o workflow falhar com:
 `Google Api Error: Invalid request - Package not found: com.engenhodigital.app.`
 
-1. Confirme que o app já existe no Play Console e que o **package name** é exatamente o mesmo do bundle.
-   - Neste repo, o package name vem de `buildozer.spec`:
-     - `package.domain = com.engenhodigital`
-     - `package.name = app`
-     - Resultado: `com.engenhodigital.app`
-2. Em **Setup -> API access**, confirme que o projeto Google Cloud linkado é o mesmo que contém a service account.
-3. Em **Service accounts**, clique em **Grant access** para a service account e dê permissões no app.
+1. Confirme que o app existe **nesta conta de desenvolvedor** e que o **package name** esperado e:
+   - `com.engenhodigital.app` (vem de `buildozer.spec`: `package.domain=com.engenhodigital` + `package.name=app`)
+2. Confirme que a service account tem permissao no app (isso e o mais comum):
+   - Play Console -> **Users and permissions**
+   - Abra o usuario: `gh-play-publisher@<GCP_PROJECT_ID>.iam.gserviceaccount.com`
+   - Em **App permissions**, adicione o app e use um papel equivalente a **Release manager**
+   - Observacao: quando a service account nao tem permissao, o Android Publisher API pode responder 404 como "Package not found"
+3. Se o app foi criado mas **nunca recebeu um upload**, o Play ainda nao "registrou" o package e o API pode retornar "Package not found".
+   - Solucao (ONE-TIME): faça um primeiro upload manual de um `.aab` no Play Console (Internal testing ou Closed testing).
+   - Dica: voce pode usar o AAB gerado pelo CI (sem build local):
+     ```powershell
+     $runId = gh run list -R raphaelhendrigo/engenhodigital --workflow android-release.yml --limit 1 --json databaseId --jq '.[0].databaseId'
+     gh run download -R raphaelhendrigo/engenhodigital $runId --name android-artifacts --dir .\\_play_artifacts
+     Get-ChildItem .\\_play_artifacts -Recurse -Filter *.aab | Select-Object -First 1 | % FullName
+     ```
 4. Aguarde 2-5 minutos e rode o workflow novamente.
