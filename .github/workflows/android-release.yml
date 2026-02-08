@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       release_track:
-        description: "Play track (internal, beta, alpha, production). 'closed' is mapped to 'beta' for compatibility."
+        description: "Play track (internal, alpha, beta, production). Aliases: 'closed'->'alpha' (closed testing), 'open'->'beta' (open testing)."
         required: false
         default: "internal"
       version_name:
@@ -189,10 +189,10 @@ jobs:
             RELEASE_VERSION_NAME="${GITHUB_REF_NAME#v}"
           fi
 
-          # Backward compatibility with old track naming.
-          if [ "$TRACK" = "closed" ]; then
-            TRACK="beta"
-          fi
+          # Backward compatibility / UI naming.
+          # Play Console UI uses "Closed testing" and "Open testing"; API tracks are typically alpha/beta.
+          if [ "$TRACK" = "closed" ]; then TRACK="alpha"; fi
+          if [ "$TRACK" = "open" ]; then TRACK="beta"; fi
 
           {
             echo "RELEASE_TRACK=$TRACK"

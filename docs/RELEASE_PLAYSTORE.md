@@ -67,9 +67,13 @@ git push origin v1.2.3
 ### 2) Release manual (workflow_dispatch)
 
 Em `Actions -> Android Release (Play Store) -> Run workflow`:
-- `release_track`: `internal` (default), `beta`, `alpha`, `production` (`closed` é aceito como alias de `beta`)
+- `release_track`: `internal` (default), `alpha`, `beta`, `production` (`closed` é aceito como alias de `alpha`; `open` é aceito como alias de `beta`)
 - `version_name`: opcional (ex: `1.2.3`) para `workflow_dispatch` (em tags `vX.Y.Z` é automático)
 - `promote_to_production`: `true/false` (se `true`, promove o release do track escolhido para `production`)
+
+Notas sobre tracks:
+- `alpha` costuma aparecer no Play Console como **Teste fechado**
+- `beta` costuma aparecer no Play Console como **Teste aberto**
 
 ## Versionamento (CI)
 
