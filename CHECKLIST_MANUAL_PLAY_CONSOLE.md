@@ -6,8 +6,12 @@ Este checklist cobre tudo que **não** dá para automatizar 100% via CI.
 Observação importante: **API access** fica no nível da **conta do desenvolvedor** (Developer account), não dentro do menu do app.
 
 - Play Console (home): `https://play.google.com/console`
-- Developer account -> API access: `https://play.google.com/console/developers/api-access`
-- Developer account -> Users and permissions: `https://play.google.com/console/developers/users-and-permissions`
+- Developer account -> API access:
+  - Link curto (as vezes redireciona): `https://play.google.com/console/developers/api-access`
+  - Link "fixo" (recomendado, use seu Developer Account ID): `https://play.google.com/console/u/0/developers/<DEVELOPER_ACCOUNT_ID>/api-access`
+- Developer account -> Users and permissions:
+  - Link curto: `https://play.google.com/console/developers/users-and-permissions`
+  - Link "fixo": `https://play.google.com/console/u/0/developers/<DEVELOPER_ACCOUNT_ID>/users-and-permissions`
 
 ## Onde encontrar o Developer Account ID (19 dígitos)
 O **ID da conta de desenvolvedor** é um número de **19 dígitos**.
@@ -15,6 +19,7 @@ O **ID da conta de desenvolvedor** é um número de **19 dígitos**.
 - No Play Console: **Conta de desenvolvedor -> Configurações -> Detalhes da conta** (procure por "ID da conta de desenvolvedor").
 - Atalho: em muitas páginas do Play Console, o número aparece na barra de endereço (URL), logo após `/developers/`:
   - Exemplo: `https://play.google.com/console/developers/1234567890123456789/...`
+  - Dica rápida: se você caiu em `.../developers/<ID>/app-list`, troque `app-list` por `api-access`.
 
 ## 1) Criar o app no Play Console
 1. Acesse o Play Console e clique em **Create app**:
@@ -56,7 +61,9 @@ keytool -export -rfc \
 
 ## 3) Linkar um projeto Google Cloud ao Play Console
 1. No Play Console, vá em **Setup -> API access**.
-   - Link direto: `https://play.google.com/console/developers/api-access`
+   - Link direto (curto): `https://play.google.com/console/developers/api-access`
+   - Se redirecionar para `app-list`, use o link "fixo" com seu Developer Account ID:
+     - `https://play.google.com/console/u/0/developers/<DEVELOPER_ACCOUNT_ID>/api-access`
 2. **Link** um projeto existente do Google Cloud ou crie um novo.
 
 ## 4) Habilitar a Google Play Developer API
@@ -84,7 +91,8 @@ Existem 2 modos suportados neste repo:
 
 ## 6) Conceder acesso da Service Account no Play Console (mínimo necessário)
 1. No Play Console: **Setup -> API access**.
-   - Link direto: `https://play.google.com/console/developers/api-access`
+   - Link direto (curto): `https://play.google.com/console/developers/api-access`
+   - Link "fixo": `https://play.google.com/console/u/0/developers/<DEVELOPER_ACCOUNT_ID>/api-access`
 2. Confirme que o projeto Google Cloud está **linkado** (seção "Linked project").
 3. Em **Service accounts**, encontre a service account do projeto linkado e clique em **Grant access**.
 4. Se necessário, em **Users and permissions**, confirme que o e-mail `client_email` está com acesso ao app.

@@ -87,7 +87,8 @@ Pontos principais:
      - `c:\apps\engenhodigital\keystore\engenho-digital-upload-cert.pem` (Windows)
 3. Linkar um projeto do Google Cloud na conta do Play Console:
    - Developer account -> API access:
-     - https://play.google.com/console/developers/api-access
+     - Link curto (as vezes redireciona): https://play.google.com/console/developers/api-access
+     - Se redirecionar, use o link "fixo" com seu Developer Account ID (ver `CHECKLIST_MANUAL_PLAY_CONSOLE.md`)
 4. Conceder acesso para a service account (no Play Console, no app):
    - API access -> Service accounts -> Grant access
 5. Completar formulários obrigatórios antes do primeiro release (Store listing, Data safety, Content rating, etc).
