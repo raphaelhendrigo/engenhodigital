@@ -250,6 +250,13 @@ function Provision-WifForGitHub {
     }
     $providerId = "github"
 
+    # Display name max is 32 chars for pools (gcloud enforces this). Keep it short and safe.
+    $poolDisplayName = ("GitHub " + $GithubRepo)
+    if ($poolDisplayName.Length -gt 32) {
+        $poolDisplayName = $poolDisplayName.Substring(0, 32)
+    }
+    $providerDisplayName = "GitHub OIDC"
+
     Write-Host "Ensuring Workload Identity Pool exists: $poolId" -ForegroundColor Cyan
     & gcloud iam workload-identity-pools describe $poolId --project $ProjectId --location "global" *> $null
     $poolExists = ($LASTEXITCODE -eq 0)
@@ -264,7 +271,7 @@ function Provision-WifForGitHub {
             "--location",
             "global",
             "--display-name",
-            "GitHub Actions pool ($GithubOwner/$GithubRepo)"
+            $poolDisplayName
         ) | Out-Null
     }
 
@@ -289,7 +296,7 @@ function Provision-WifForGitHub {
             "--workload-identity-pool",
             $poolId,
             "--display-name",
-            "GitHub Actions ($GithubOwner/$GithubRepo)",
+            $providerDisplayName,
             "--issuer-uri",
             "https://token.actions.githubusercontent.com",
             "--attribute-mapping",

@@ -215,10 +215,14 @@ if [ -n "$GCP_PROJECT_ID" ]; then
   provider_id="github"
 
   if ! gcloud iam workload-identity-pools describe "$pool_id" --project "$GCP_PROJECT_ID" --location global >/dev/null 2>&1; then
+    pool_display="GitHub ${GITHUB_REPO}"
+    if [ "${#pool_display}" -gt 32 ]; then
+      pool_display="${pool_display:0:32}"
+    fi
     gcloud iam workload-identity-pools create "$pool_id" \
       --project "$GCP_PROJECT_ID" \
       --location global \
-      --display-name "GitHub Actions pool (${REPO_FULL})" >/dev/null
+      --display-name "$pool_display" >/dev/null
   fi
 
   if ! gcloud iam workload-identity-pools providers describe "$provider_id" \
@@ -229,7 +233,7 @@ if [ -n "$GCP_PROJECT_ID" ]; then
       --project "$GCP_PROJECT_ID" \
       --location global \
       --workload-identity-pool "$pool_id" \
-      --display-name "GitHub Actions (${REPO_FULL})" \
+      --display-name "GitHub OIDC" \
       --issuer-uri "https://token.actions.githubusercontent.com" \
       --attribute-mapping "google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref,attribute.actor=assertion.actor" \
       --attribute-condition "assertion.repository=='${REPO_FULL}'" >/dev/null
@@ -282,4 +286,3 @@ if [ -n "${GCP_PROJECT_ID:-}" ]; then
   echo "   ${sa_email}"
 fi
 echo "5) Complete required forms (Store listing, Data safety, Content rating, etc.) before first release."
-
