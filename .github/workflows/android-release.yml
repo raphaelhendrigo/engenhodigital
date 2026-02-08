@@ -428,6 +428,13 @@ jobs:
           fi
           echo "AAB_PATH=$AAB_PATH" >> "$GITHUB_ENV"
 
+      - name: Generate Play Store listing assets (Fastlane metadata/images)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet "Pillow==10.2.0"
+          python3 scripts/generate_play_store_assets.py --locale "pt-BR"
+
       - name: Build universal APK from AAB (bundletool)
         shell: bash
         env:
