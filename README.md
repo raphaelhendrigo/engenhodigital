@@ -59,6 +59,9 @@ buildozer android debug  # primeira execucao baixa toolchain
 - O workflow **Android Release (Play Store)** publica automaticamente no Play Console.
 - Automático por tag: crie e faça push de uma tag `vX.Y.Z` (ex.: `v1.2.3`) para publicar no track `internal`.
 - Para publicar em outro track (`beta`/`alpha`/`production`) e/ou promover para production, use o `workflow_dispatch` conforme `docs/RELEASE_PLAYSTORE.md`.
+- Autenticação preferida (sem chave): **Workload Identity Federation (WIF) + GitHub OIDC**.
+  - Fallback suportado: `PLAY_SERVICE_ACCOUNT_JSON` (não recomendado a longo prazo).
+  - Se uma chave JSON já foi exposta, **revogue/rotacione** no Google Cloud imediatamente (ver `SECURITY_NOTES.md`).
 
 ## Observacoes
 - Atualize URLs e contatos reais em `engdigital/config.py`.

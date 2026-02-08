@@ -22,9 +22,15 @@ fi
 
 cd "$REPO_ROOT"
 
-if ! gh secret list | grep -q "^PLAY_SERVICE_ACCOUNT_JSON\\b"; then
-  echo "Secret PLAY_SERVICE_ACCOUNT_JSON nao esta configurado no repo." >&2
-  echo "Rode: ./scripts/play/set_play_service_account_secret.sh" >&2
+# Optional pre-flight: ensure Play auth is configured (WIF vars OR JSON secret).
+if gh variable list 2>/dev/null | grep -q "^GCP_WORKLOAD_IDENTITY_PROVIDER\\b" && gh variable list 2>/dev/null | grep -q "^GCP_SERVICE_ACCOUNT_EMAIL\\b"; then
+  : # WIF mode
+elif gh secret list 2>/dev/null | grep -q "^PLAY_SERVICE_ACCOUNT_JSON\\b"; then
+  : # JSON fallback mode
+else
+  echo "Play auth not configured (WIF vars or PLAY_SERVICE_ACCOUNT_JSON secret)." >&2
+  echo "Recommended: run ./scripts/bootstrap_play_ci.sh --gcp-project <PROJECT_ID>" >&2
+  echo "Fallback:    run ./scripts/play/set_play_service_account_secret.sh" >&2
   exit 1
 fi
 

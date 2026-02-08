@@ -35,7 +35,14 @@ class BuildozerSpecTests(unittest.TestCase):
         spec = parse_buildozer_spec()
         self.assertEqual(spec.get("android.release_artifact", "").strip().lower(), "aab")
 
+    def test_target_api_is_35_or_higher(self) -> None:
+        spec = parse_buildozer_spec()
+        self.assertIn("android.api", spec)
+
+        api_raw = spec.get("android.api", "").strip()
+        self.assertTrue(api_raw.isdigit(), f"android.api must be numeric (got: {api_raw!r})")
+        self.assertGreaterEqual(int(api_raw), 35)
+
 
 if __name__ == "__main__":
     unittest.main()
-

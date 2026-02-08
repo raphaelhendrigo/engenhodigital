@@ -7,8 +7,7 @@ param(
     [string]$KeyAlias,
     [Parameter(Mandatory = $true)]
     [string]$KeyAliasPassword,
-    [Parameter(Mandatory = $true)]
-    [string]$ServiceAccountJsonPath,
+    [string]$ServiceAccountJsonPath = "",
     [ValidateSet("internal", "beta", "alpha", "closed", "production")]
     [string]$Track = "internal",
     [ValidateSet("draft", "inProgress", "completed", "halted")]
@@ -66,23 +65,25 @@ if (-not (Test-Path $KeystorePath)) {
     exit 1
 }
 
-if (-not (Test-Path $ServiceAccountJsonPath)) {
-    Write-Error "Service account JSON not found: $ServiceAccountJsonPath"
-    exit 1
-}
-
-try {
-    $serviceJsonRaw = Get-Content -Raw -Path $ServiceAccountJsonPath
-    $serviceJson = $serviceJsonRaw | ConvertFrom-Json
-    if ($serviceJson.type -ne "service_account") {
-        throw "JSON type is not service_account."
+$serviceJsonRaw = ""
+if ($ServiceAccountJsonPath) {
+    if (-not (Test-Path $ServiceAccountJsonPath)) {
+        Write-Error "Service account JSON not found: $ServiceAccountJsonPath"
+        exit 1
     }
-    if (-not $serviceJson.client_email -or -not $serviceJson.private_key) {
-        throw "Missing required fields in JSON."
+    try {
+        $serviceJsonRaw = Get-Content -Raw -Path $ServiceAccountJsonPath
+        $serviceJson = $serviceJsonRaw | ConvertFrom-Json
+        if ($serviceJson.type -ne "service_account") {
+            throw "JSON type is not service_account."
+        }
+        if (-not $serviceJson.client_email -or -not $serviceJson.private_key) {
+            throw "Missing required fields in JSON."
+        }
+    } catch {
+        Write-Error "Invalid service account JSON: $($_.Exception.Message)"
+        exit 1
     }
-} catch {
-    Write-Error "Invalid service account JSON: $($_.Exception.Message)"
-    exit 1
 }
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -92,13 +93,17 @@ Set-Location $repoRoot
 $keystoreBytes = [System.IO.File]::ReadAllBytes((Resolve-Path $KeystorePath))
 $keystoreB64 = [Convert]::ToBase64String($keystoreBytes)
 
-gh secret set ANDROID_KEYSTORE_BASE64 -b $keystoreB64
-gh secret set ANDROID_KEYSTORE_PASSWORD -b $KeystorePassword
-gh secret set ANDROID_KEY_ALIAS -b $KeyAlias
+$keystoreB64 | gh secret set ANDROID_KEYSTORE_BASE64
+$KeystorePassword | gh secret set ANDROID_KEYSTORE_PASSWORD
+$KeyAlias | gh secret set ANDROID_KEY_ALIAS
 # New standard secret name (preferred) + legacy name for backward compatibility.
-gh secret set ANDROID_KEY_PASSWORD -b $KeyAliasPassword
-gh secret set ANDROID_KEY_ALIAS_PASSWORD -b $KeyAliasPassword
-gh secret set PLAY_SERVICE_ACCOUNT_JSON -b $serviceJsonRaw
+$KeyAliasPassword | gh secret set ANDROID_KEY_PASSWORD
+$KeyAliasPassword | gh secret set ANDROID_KEY_ALIAS_PASSWORD
+if ($serviceJsonRaw) {
+    $serviceJsonRaw | gh secret set PLAY_SERVICE_ACCOUNT_JSON
+} else {
+    Write-Host "Skipping PLAY_SERVICE_ACCOUNT_JSON (WIF mode expected)." -ForegroundColor Yellow
+}
 
 $prevRun = ""
 try {

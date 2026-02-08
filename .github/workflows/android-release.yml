@@ -31,12 +31,122 @@ on:
         required: false
         default: ""
 
+permissions:
+  contents: read
+  id-token: write
+
 concurrency:
   group: android-release-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  validate-config:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Security scan (no leaked keys)
+        run: python scripts/security_scan.py
+
+      - name: Validate config (secrets/vars/spec)
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || secrets.ANDROID_KEY_ALIAS_PASSWORD }}
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          GCP_SERVICE_ACCOUNT_EMAIL: ${{ vars.GCP_SERVICE_ACCOUNT_EMAIL }}
+        run: |
+          set -euo pipefail
+
+          missing=()
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name:-}" ]; then
+              missing+=("$name")
+            fi
+          done
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "Missing required Android signing secret(s): ${missing[*]}" >&2
+            echo "Configure them in GitHub: Settings -> Secrets and variables -> Actions -> Secrets" >&2
+            exit 1
+          fi
+
+          # Enforce a clear auth mode selection:
+          # - WIF mode: both vars must be set
+          # - JSON mode: PLAY_SERVICE_ACCOUNT_JSON must be set
+          if [ -n "${GCP_WORKLOAD_IDENTITY_PROVIDER:-}" ] || [ -n "${GCP_SERVICE_ACCOUNT_EMAIL:-}" ]; then
+            if [ -z "${GCP_WORKLOAD_IDENTITY_PROVIDER:-}" ] || [ -z "${GCP_SERVICE_ACCOUNT_EMAIL:-}" ]; then
+              echo "WIF is partially configured. Either set BOTH variables or unset BOTH and use PLAY_SERVICE_ACCOUNT_JSON." >&2
+              echo "Missing:" >&2
+              [ -z "${GCP_WORKLOAD_IDENTITY_PROVIDER:-}" ] && echo "- vars.GCP_WORKLOAD_IDENTITY_PROVIDER" >&2
+              [ -z "${GCP_SERVICE_ACCOUNT_EMAIL:-}" ] && echo "- vars.GCP_SERVICE_ACCOUNT_EMAIL" >&2
+              exit 1
+            fi
+            echo "Play auth mode: WIF (GitHub OIDC)" >&2
+          else
+            if [ -z "${PLAY_SERVICE_ACCOUNT_JSON:-}" ]; then
+              echo "Missing Play credentials. Configure ONE of:" >&2
+              echo "- Preferred (keyless): vars.GCP_WORKLOAD_IDENTITY_PROVIDER + vars.GCP_SERVICE_ACCOUNT_EMAIL" >&2
+              echo "- Fallback: secret PLAY_SERVICE_ACCOUNT_JSON" >&2
+              exit 1
+            fi
+            echo "Play auth mode: JSON secret (fallback)" >&2
+          fi
+
+          PACKAGE_NAME="$(python3 scripts/detect_play_package_name.py)"
+          if [ "$PACKAGE_NAME" != "com.engenhodigital.app" ]; then
+            echo "Unexpected Android package name detected from buildozer.spec." >&2
+            echo "Expected: com.engenhodigital.app" >&2
+            echo "Actual:   $PACKAGE_NAME" >&2
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          spec_path = Path("buildozer.spec")
+          text = spec_path.read_text(encoding="utf-8")
+
+          in_app = False
+          values: dict[str, str] = {}
+          for raw in text.splitlines():
+              line = raw.strip()
+              if not line or line.startswith("#"):
+                  continue
+              if line.startswith("[") and line.endswith("]"):
+                  in_app = line == "[app]"
+                  continue
+              if not in_app or "=" not in line:
+                  continue
+              k, v = [x.strip() for x in line.split("=", 1)]
+              values[k] = v
+
+          artifact = values.get("android.release_artifact", "").strip().lower()
+          if artifact != "aab":
+              raise SystemExit(f"buildozer.spec must have android.release_artifact = aab (found: {artifact!r})")
+
+          api_raw = values.get("android.api", "").strip()
+          if not api_raw.isdigit():
+              raise SystemExit(f"buildozer.spec must have a numeric android.api (found: {api_raw!r})")
+          api = int(api_raw)
+          if api < 35:
+              raise SystemExit(f"buildozer.spec android.api must be >= 35 (found: {api})")
+
+          print("OK: buildozer.spec (package/aab/target API) looks valid.")
+          PY
+
   android-release:
+    needs: validate-config
     runs-on: ubuntu-22.04
     timeout-minutes: 90
 
@@ -110,6 +220,31 @@ jobs:
           ruby-version: "3.2"
           bundler-cache: true
 
+      - name: Authenticate to Google Cloud (WIF)
+        if: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER != '' && vars.GCP_SERVICE_ACCOUNT_EMAIL != '' }}
+        id: gcp-auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT_EMAIL }}
+          create_credentials_file: true
+
+      - name: Set Play credentials path (WIF)
+        if: ${{ steps.gcp-auth.outcome == 'success' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CREDS="${{ steps.gcp-auth.outputs.credentials_file_path }}"
+          if [ -z "$CREDS" ]; then
+            CREDS="${GOOGLE_APPLICATION_CREDENTIALS:-}"
+          fi
+          if [ -z "$CREDS" ] || [ ! -f "$CREDS" ]; then
+            echo "Could not locate credentials file created by google-github-actions/auth." >&2
+            exit 1
+          fi
+          echo "PLAY_JSON_KEY_PATH=$CREDS" >> "$GITHUB_ENV"
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -147,14 +282,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildozer-
 
-      - name: Prepare signing + Play credentials
+      - name: Prepare signing (keystore)
         shell: bash
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || secrets.ANDROID_KEY_ALIAS_PASSWORD }}
-          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
         run: |
           set -euo pipefail
 
@@ -174,24 +308,42 @@ jobs:
             echo "Missing secret: ANDROID_KEY_PASSWORD (or legacy ANDROID_KEY_ALIAS_PASSWORD)" >&2
             exit 1
           fi
-          if [ -z "${PLAY_SERVICE_ACCOUNT_JSON:-}" ]; then
-            echo "Missing secret: PLAY_SERVICE_ACCOUNT_JSON" >&2
-            exit 1
-          fi
 
           KEYSTORE_PATH="$RUNNER_TEMP/upload-keystore.jks"
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
-
-          PLAY_KEY_PATH="$RUNNER_TEMP/play-key.json"
-          printf '%s' "$PLAY_SERVICE_ACCOUNT_JSON" > "$PLAY_KEY_PATH"
 
           {
             echo "ANDROID_KEYSTORE_PATH=$KEYSTORE_PATH"
             echo "ANDROID_KEYSTORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD"
             echo "ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS"
             echo "ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD"
-            echo "PLAY_JSON_KEY_PATH=$PLAY_KEY_PATH"
           } >> "$GITHUB_ENV"
+
+      - name: Prepare Play credentials (JSON secret fallback)
+        if: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER == '' && vars.GCP_SERVICE_ACCOUNT_EMAIL == '' }}
+        shell: bash
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${PLAY_SERVICE_ACCOUNT_JSON:-}" ]; then
+            echo "Missing secret: PLAY_SERVICE_ACCOUNT_JSON" >&2
+            echo "Configure WIF (vars.GCP_WORKLOAD_IDENTITY_PROVIDER + vars.GCP_SERVICE_ACCOUNT_EMAIL) OR set PLAY_SERVICE_ACCOUNT_JSON." >&2
+            exit 1
+          fi
+
+          PLAY_KEY_PATH="$RUNNER_TEMP/play-key.json"
+          export PLAY_KEY_PATH
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          out = Path(os.environ["PLAY_KEY_PATH"])
+          raw = os.environ["PLAY_SERVICE_ACCOUNT_JSON"]
+          out.write_text(raw, encoding="utf-8")
+          PY
+          echo "PLAY_JSON_KEY_PATH=$PLAY_KEY_PATH" >> "$GITHUB_ENV"
 
       - name: Install Android SDK/NDK and accept licenses
         shell: bash

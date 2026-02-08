@@ -30,6 +30,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Security scan (no leaked keys)
+        run: python scripts/security_scan.py
+
       - name: Lint (syntax)
         run: python -m compileall -q .
 

@@ -25,7 +25,13 @@ Em `Settings -> Secrets and variables -> Actions`:
 - `ANDROID_KEY_ALIAS`
 - `ANDROID_KEY_PASSWORD` (senha do alias)
   - compatibilidade: `ANDROID_KEY_ALIAS_PASSWORD` também funciona (legado), mas prefira `ANDROID_KEY_PASSWORD`
-- `PLAY_SERVICE_ACCOUNT_JSON`
+- Play auth (escolha 1 modo):
+  - Preferido (keyless): Variables `GCP_WORKLOAD_IDENTITY_PROVIDER` + `GCP_SERVICE_ACCOUNT_EMAIL`
+  - Fallback: Secret `PLAY_SERVICE_ACCOUNT_JSON`
+
+Bootstrap recomendado (gera keystore + configura secrets/vars via `gh`):
+- PowerShell: `scripts/bootstrap_play_ci.ps1`
+- Bash/WSL: `scripts/bootstrap_play_ci.sh`
 
 ## Publicação por tag (sem cliques)
 
@@ -56,8 +62,11 @@ git push origin v1.2.3
   -KeystorePassword "SENHA_DO_KEYSTORE" `
   -KeyAlias "engenho_digital_upload" `
   -KeyAliasPassword "SENHA_DO_ALIAS" `
-  -ServiceAccountJsonPath .\play-service-account.json `
   -Track internal `
   -ReleaseStatus completed `
   -Watch
 ```
+
+Observacao:
+- Se voce usa WIF (vars `GCP_WORKLOAD_IDENTITY_PROVIDER` + `GCP_SERVICE_ACCOUNT_EMAIL`), nao precisa passar `-ServiceAccountJsonPath`.
+- No modo fallback (JSON), passe `-ServiceAccountJsonPath` apontando para o arquivo local da key.

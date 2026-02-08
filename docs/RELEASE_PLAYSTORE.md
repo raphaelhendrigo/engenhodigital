@@ -1,44 +1,57 @@
 # Release Android (Google Play) via CI/CD
 
-Este repositório **não** é um app Android Gradle (Flutter/RN/Ionic/Cordova). É um app **Python/Kivy** empacotado para Android via **Buildozer** (`buildozer.spec`), então o **Gradle Play Publisher** não se aplica aqui. A publicação automatizada é feita via **Fastlane (supply)**.
+Este repositório **não** é um app Android Gradle (Flutter/RN/Ionic/Cordova). É um app **Python/Kivy** empacotado para Android via **Buildozer** (`buildozer.spec`). A publicação automatizada no Google Play é feita via **Fastlane (supply)**.
+
+## Quickstart (PowerShell, Windows)
+
+```powershell
+cd c:\apps\engenhodigital
+gh auth login
+gcloud auth login
+.\scripts\bootstrap_play_ci.ps1 -GcpProjectId "<GCP_PROJECT_ID>"
+git tag v1.2.3; git push origin v1.2.3
+```
 
 ## Workflows (GitHub Actions)
 
 - `android-ci.yml`
   - Triggers: `pull_request`, `push` em `main`
-  - Faz: lint básico (syntax) + build `debug` via Buildozer
-
+  - Faz: lint básico (syntax) + testes + build `debug` via Buildozer
 - `android-release.yml`
   - Triggers: tag `v*` e `workflow_dispatch`
-  - Faz: gera `.aab` **release** assinado e publica no Google Play.
+  - Faz: valida config, gera `.aab` **release** assinado e publica no Google Play.
   - Tag `vX.Y.Z`: publica sempre em `internal` (padrão seguro).
-  - `workflow_dispatch`: permite escolher track e opcionalmente **promover para production**.
+  - `workflow_dispatch`: permite escolher track e (opcional) **promover para production**.
 
-## Secrets (obrigatórios)
+## Autenticação no Google Play (2 modos)
+
+### Modo A (preferido): WIF (keyless) via GitHub OIDC
+
+Sem JSON de chave privada. O workflow usa `google-github-actions/auth@v2` e passa o arquivo de credenciais gerado para o Fastlane como `json_key`.
+
+Configuração (GitHub Actions -> Variables):
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`
+- `GCP_SERVICE_ACCOUNT_EMAIL`
+
+O script `scripts/bootstrap_play_ci.ps1` configura isso automaticamente quando você passa `-GcpProjectId`.
+
+### Modo B (fallback): JSON da service account em Secret
+
+Configuração (GitHub Actions -> Secrets):
+- `PLAY_SERVICE_ACCOUNT_JSON` (conteúdo do JSON com `private_key`)
+
+Observação: este modo é suportado, mas a recomendação é migrar para WIF por segurança (ver `SECURITY_NOTES.md`).
+
+## Android Signing (Secrets obrigatórios)
 
 Configure em `Settings -> Secrets and variables -> Actions`:
-
-- `ANDROID_KEYSTORE_BASE64`
-  - Conteúdo **base64** do seu `.jks` (upload key).
+- `ANDROID_KEYSTORE_BASE64` (base64 do `.jks` da upload key)
 - `ANDROID_KEYSTORE_PASSWORD`
 - `ANDROID_KEY_ALIAS`
 - `ANDROID_KEY_PASSWORD`
-  - Senha do alias (key password).
   - Compatibilidade: o CI também aceita `ANDROID_KEY_ALIAS_PASSWORD` (legado), mas prefira `ANDROID_KEY_PASSWORD`.
-- `PLAY_SERVICE_ACCOUNT_JSON`
-  - Conteúdo do JSON da service account (chave privada). Não comitar em arquivo no repo.
 
-Gerar `ANDROID_KEYSTORE_BASE64`:
-
-```bash
-base64 -w0 keystore/engenho-digital-upload.jks
-```
-
-PowerShell (Windows):
-
-```powershell
-[Convert]::ToBase64String([IO.File]::ReadAllBytes("keystore\\engenho-digital-upload.jks"))
-```
+O script `scripts/bootstrap_play_ci.ps1` gera o keystore e configura esses secrets automaticamente via `gh`.
 
 ## Como publicar
 
@@ -63,13 +76,29 @@ Em `Actions -> Android Release (Play Store) -> Run workflow`:
 - `versionName`: em tags `vX.Y.Z`, vira `X.Y.Z` (sem `v`) e é injetado no `buildozer.spec`.
 - `versionCode` (`android.numeric_version`): calculado no CI como `YYYYMMDD * 100 + (run_number % 100)` em UTC, evitando colisão e mantendo < 2.147.483.647.
 
-## Rodar release local (Linux/WSL)
+## ONE-TIME SETUP (Play Console) - o inevitável
+
+Checklist completo: `CHECKLIST_MANUAL_PLAY_CONSOLE.md`
+
+Pontos principais:
+1. Criar o app (se ainda não existe): https://play.google.com/console
+2. Habilitar Play App Signing (Setup -> App integrity).
+   - Se o Play Console pedir o certificado da upload key, selecione o arquivo gerado pelo bootstrap:
+     - `c:\apps\engenhodigital\keystore\engenho-digital-upload-cert.pem` (Windows)
+3. Linkar um projeto do Google Cloud na conta do Play Console:
+   - Developer account -> API access:
+     - https://play.google.com/console/developers/api-access
+4. Conceder acesso para a service account (no Play Console, no app):
+   - API access -> Service accounts -> Grant access
+5. Completar formulários obrigatórios antes do primeiro release (Store listing, Data safety, Content rating, etc).
+
+## Rodar release local (Linux/WSL) (opcional)
 
 Pré-requisitos:
 - Buildozer + toolchain Android (SDK/NDK/JDK) em Linux/WSL
 - Ruby + Bundler (para Fastlane) ou rode o upload só via CI
 
-Passos (exemplo):
+Passos (exemplo, fallback JSON):
 
 ```bash
 export ANDROID_KEYSTORE_PATH="$PWD/keystore/engenho-digital-upload.jks"
@@ -92,13 +121,10 @@ bundle install
 bundle exec fastlane android upload
 ```
 
-Checklist do Play Console e setup inicial (service account, permissões, app signing):
-- `CHECKLIST_MANUAL_PLAY_CONSOLE.md`
-
 ## Links diretos (para autorizações manuais)
 
 ```text
-GitHub Secrets (Actions):
+GitHub Secrets/Variables (Actions):
 https://github.com/raphaelhendrigo/engenhodigital/settings/secrets/actions
 
 Workflows:

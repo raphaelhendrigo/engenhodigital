@@ -66,12 +66,21 @@ keytool -export -rfc \
 2. Aguarde alguns minutos para a permissão propagar.
 
 ## 5) Criar Service Account (Google Cloud) e gerar JSON
+Existem 2 modos suportados neste repo:
+
+### Modo preferido: WIF (sem chave JSON)
+- Use o bootstrap que provisiona WIF e cria a service account automaticamente:
+  - PowerShell: `.\scripts\bootstrap_play_ci.ps1 -GcpProjectId "<GCP_PROJECT_ID>"`
+  - Bash/WSL: `./scripts/bootstrap_play_ci.sh --gcp-project "<GCP_PROJECT_ID>"`
+- Neste modo, **nao crie key JSON** (evita credencial de longa duracao).
+
+### Fallback: JSON key (apenas se WIF nao for possivel)
 1. No Google Cloud Console:
    - **IAM & Admin -> Service Accounts -> Create**
    - Link: `https://console.cloud.google.com/iam-admin/serviceaccounts`
 2. Crie uma chave:
    - **Keys -> Add key -> Create new key -> JSON**
-3. Guarde o arquivo JSON com segurança (não comitar).
+3. Guarde o arquivo JSON com segurança (nao comitar).
 
 ## 6) Conceder acesso da Service Account no Play Console (mínimo necessário)
 1. No Play Console: **Setup -> API access**.
@@ -79,7 +88,7 @@ keytool -export -rfc \
 2. Confirme que o projeto Google Cloud está **linkado** (seção "Linked project").
 3. Em **Service accounts**, encontre a service account do projeto linkado e clique em **Grant access**.
 4. Se necessário, em **Users and permissions**, confirme que o e-mail `client_email` está com acesso ao app.
-   - Exemplo (neste caso): `appengenho@appengenho.iam.gserviceaccount.com`
+   - Exemplo (WIF bootstrap): `gh-play-publisher@<GCP_PROJECT_ID>.iam.gserviceaccount.com`
 5. Conceda permissões mínimas para publicar no(s) track(s) desejado(s).
 
 Sugestão pragmática:
@@ -105,7 +114,11 @@ No GitHub: `Settings -> Secrets and variables -> Actions`:
 - `ANDROID_KEYSTORE_PASSWORD`
 - `ANDROID_KEY_ALIAS`
 - `ANDROID_KEY_PASSWORD`
-- `PLAY_SERVICE_ACCOUNT_JSON`: conteúdo do JSON da service account
+- Play auth (escolha 1 modo):
+  - Preferido (WIF, keyless):
+    - Variables `GCP_WORKLOAD_IDENTITY_PROVIDER` e `GCP_SERVICE_ACCOUNT_EMAIL`
+  - Fallback (JSON):
+    - Secret `PLAY_SERVICE_ACCOUNT_JSON`: conteudo do JSON da service account
 
 Link direto (este repositório):
 - `https://github.com/raphaelhendrigo/engenhodigital/settings/secrets/actions`
@@ -113,12 +126,16 @@ Link direto (este repositório):
 ## 8.1) Arquivos locais (onde ficam no seu PC e para que servem)
 - `c:\\apps\\engenhodigital\\keystore\\engenho-digital-upload.jks`
   - Não subir no Git. Use para gerar `ANDROID_KEYSTORE_BASE64`.
+  - **PowerShell (Windows):**
+    ```powershell
+    [Convert]::ToBase64String([System.IO.File]::ReadAllBytes("keystore\engenho-digital-upload.jks")) | Set-Clipboard
+    ```
 - `c:\\apps\\engenhodigital\\keystore\\engenho-digital-upload-cert.pem`
   - Subir no Play Console **somente** se for solicitado (App integrity -> upload key).
 - `c:\\apps\\engenhodigital\\play-service-account.json`
-  - Não subir no Git. Copie o conteúdo para o secret `PLAY_SERVICE_ACCOUNT_JSON`.
+  - Somente no modo fallback (JSON). Nao subir no Git. Copie o conteudo para o secret `PLAY_SERVICE_ACCOUNT_JSON`.
 - `c:\\apps\\engenhodigital\\appengenho-*.json`
-  - Chave JSON baixada do Google Cloud. Não subir no Git. Copie o conteúdo para `PLAY_SERVICE_ACCOUNT_JSON` e mova o arquivo para um local seguro fora do repo.
+  - Chave JSON baixada do Google Cloud (fallback). Nao subir no Git. Copie o conteudo para `PLAY_SERVICE_ACCOUNT_JSON` e mova o arquivo para um local seguro fora do repo.
 - `c:\\apps\\engenhodigital\\bin\\*.aab`
   - Saída de build local (gitignored). Se precisar upload manual, este é o arquivo.
 
