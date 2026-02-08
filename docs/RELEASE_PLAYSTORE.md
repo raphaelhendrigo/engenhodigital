@@ -20,6 +20,7 @@ git tag v1.2.3; git push origin v1.2.3
 - `android-release.yml`
   - Triggers: tag `v*` e `workflow_dispatch`
   - Faz: valida config, gera `.aab` **release** assinado e publica no Google Play.
+  - Também sincroniza automaticamente a página **"Detalhes do app"** (título/descrições/ícone/feature graphic/screenshots) a partir de `fastlane/metadata/android`.
   - Tag `vX.Y.Z`: publica sempre em `internal` (padrão seguro).
   - `workflow_dispatch`: permite escolher track e (opcional) **promover para production**.
 
@@ -131,6 +132,20 @@ export AAB_PATH="$(ls -1 bin/*.aab | head -n 1)"
 bundle install
 bundle exec fastlane android upload
 ```
+
+## Troubleshooting - "signed with the wrong key"
+
+Se o workflow falhar com:
+`The Android App Bundle was signed with the wrong key. Found: SHA1: ... expected: SHA1: ...`
+
+Significa que o Play Console ainda está esperando um **certificado de upload** diferente do que o CI está usando.
+
+ONE-TIME SETUP (inevitável, regra do Play Console):
+1. Play Console -> App -> **Integridade do app** -> **Assinatura de apps** -> **Solicitar redefinição da chave de upload**
+2. Quando pedir o certificado, use o arquivo:
+   - Windows (bootstrap): `c:\\apps\\engenhodigital\\keystore\\engenho-digital-upload-cert.pem`
+   - Ou baixe o certificado exportado pelo CI no artefato `android-artifacts/upload-cert.pem` (Actions -> run -> Artifacts).
+3. Aguarde a propagação e rode o workflow novamente.
 
 ## Links diretos (para autorizações manuais)
 

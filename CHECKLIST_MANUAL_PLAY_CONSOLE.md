@@ -208,7 +208,13 @@ Isso significa que o Play Console esta esperando uma **upload key** (certificado
 2. No Play Console (ONE-TIME SETUP):
    - App -> **Integridade do app** -> **Assinatura do app** (App signing)
    - Na seção **Upload key certificate**, use **Reset/Change upload key** e selecione:
-     - `c:\\apps\\engenhodigital\\keystore\\engenho-digital-upload-cert.pem`
+      - `c:\\apps\\engenhodigital\\keystore\\engenho-digital-upload-cert.pem`
+   - Alternativa (se você não tem o arquivo local): baixe o certificado exportado pelo CI:
+     ```powershell
+     $runId = gh run list -R raphaelhendrigo/engenhodigital --workflow android-release.yml --limit 1 --json databaseId --jq '.[0].databaseId'
+     gh run download -R raphaelhendrigo/engenhodigital $runId --name android-artifacts --dir .\\_play_artifacts
+     Get-ChildItem .\\_play_artifacts -Recurse -Filter upload-cert.pem | Select-Object -First 1 | % FullName
+     ```
    - Depois disso, o SHA1 esperado no Play Console deve bater com o SHA1 impresso pelo bootstrap.
 3. Aguarde alguns minutos e rode o workflow novamente.
 
