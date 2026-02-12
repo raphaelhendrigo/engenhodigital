@@ -68,6 +68,7 @@ platform :android do
         aab: aab_path,
         track: track,
         release_status: effective_release_status,
+        track_promote_release_status: effective_release_status,
         json_key: ENV.fetch("PLAY_JSON_KEY_PATH"),
         package_name: ENV.fetch("PLAY_PACKAGE_NAME"),
         metadata_path: metadata_path,
