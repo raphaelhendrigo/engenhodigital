@@ -6,7 +6,7 @@ This is meant to unblock "zero day-to-day clicks" by ensuring required store lis
 images exist in `fastlane/metadata/android/<locale>/images/...`.
 
 Inputs (expected to exist in this repo):
-- assets/images/icon.png (512x512) -> Play Store icon
+- assets/store/icon_512.png (preferred) or assets/images/icon.png -> Play Store icon
 - assets/images/presplash.png (1080x1920) -> used as a screenshot + to derive featureGraphic
 
 Outputs (generated, safe to commit if you want, but not required):
@@ -73,7 +73,9 @@ def main() -> None:
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parent.parent
-    icon_src = repo_root / "assets" / "images" / "icon.png"
+    store_icon_src = repo_root / "assets" / "store" / "icon_512.png"
+    fallback_icon_src = repo_root / "assets" / "images" / "icon.png"
+    icon_src = store_icon_src if store_icon_src.is_file() else fallback_icon_src
     presplash_src = repo_root / "assets" / "images" / "presplash.png"
     _require(icon_src)
     _require(presplash_src)
@@ -95,4 +97,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

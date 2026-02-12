@@ -1,305 +1,44 @@
 #:import dp kivy.metrics.dp
-#:import FadeTransition kivy.uix.screenmanager.FadeTransition
-#:set primary_color 0.12, 0.36, 0.68, 1
-#:set accent_color 0.98, 0.58, 0.18, 1
-#:set surface_color 0.08, 0.11, 0.16, 1
+#:set bg_color 0.06, 0.09, 0.13, 1
+#:set header_color 0.09, 0.14, 0.20, 1
 #:set card_color 0.14, 0.18, 0.24, 1
+#:set accent_color 0.98, 0.58, 0.18, 1
 #:set text_color 0.95, 0.96, 0.98, 1
-#:set muted_text 0.75, 0.80, 0.85, 1
-
-<StatChip@BoxLayout>:
-    title: ""
-    caption: ""
-    orientation: "vertical"
-    spacing: dp(4)
-    padding: dp(12)
-    size_hint_y: None
-    height: self.minimum_height
-    canvas.before:
-        Color:
-            rgba: card_color
-        RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [dp(12)]
-    Label:
-        text: root.title
-        color: text_color
-        bold: True
-        font_size: "20sp"
-        size_hint_y: None
-        height: self.texture_size[1]
-    Label:
-        text: root.caption
-        color: muted_text
-        font_size: "14sp"
-        text_size: self.width, None
-        halign: "left"
-        valign: "top"
-        size_hint_y: None
-        height: self.texture_size[1]
-
-<PillarCard@BoxLayout>:
-    title: ""
-    description: ""
-    orientation: "vertical"
-    spacing: dp(6)
-    padding: dp(12)
-    size_hint_y: None
-    height: self.minimum_height
-    canvas.before:
-        Color:
-            rgba: card_color
-        RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [dp(12)]
-    Label:
-        text: root.title
-        color: text_color
-        bold: True
-        font_size: "17sp"
-        size_hint_y: None
-        height: self.texture_size[1]
-    Label:
-        text: root.description
-        color: muted_text
-        font_size: "14sp"
-        text_size: self.width, None
-        halign: "left"
-        valign: "top"
-        size_hint_y: None
-        height: self.texture_size[1]
-
-<ProjectCard@BoxLayout>:
-    category: ""
-    title: ""
-    summary: ""
-    bullet1: ""
-    bullet2: ""
-    bullet3: ""
-    orientation: "vertical"
-    spacing: dp(8)
-    padding: dp(14)
-    size_hint_y: None
-    height: self.minimum_height
-    canvas.before:
-        Color:
-            rgba: card_color
-        RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [dp(14)]
-    Label:
-        text: root.category
-        color: accent_color
-        font_size: "14sp"
-        size_hint_y: None
-        height: self.texture_size[1]
-    Label:
-        text: root.title
-        color: text_color
-        bold: True
-        font_size: "18sp"
-        size_hint_y: None
-        height: self.texture_size[1]
-    Label:
-        text: root.summary
-        color: muted_text
-        font_size: "14sp"
-        text_size: self.width, None
-        halign: "left"
-        valign: "top"
-        size_hint_y: None
-        height: self.texture_size[1]
-    BoxLayout:
-        orientation: "vertical"
-        spacing: dp(4)
-        size_hint_y: None
-        height: self.minimum_height
-        Label:
-            text: "\u2022 " + root.bullet1
-            color: muted_text
-            font_size: "13sp"
-            text_size: self.width, None
-            size_hint_y: None
-            height: self.texture_size[1]
-            halign: "left"
-            valign: "top"
-        Label:
-            text: "\u2022 " + root.bullet2
-            color: muted_text
-            font_size: "13sp"
-            text_size: self.width, None
-            size_hint_y: None
-            height: self.texture_size[1]
-            halign: "left"
-            valign: "top"
-        Label:
-            text: "\u2022 " + root.bullet3
-            color: muted_text
-            font_size: "13sp"
-            text_size: self.width, None
-            size_hint_y: None
-            height: self.texture_size[1]
-            halign: "left"
-            valign: "top"
-
-<ProfileCard@BoxLayout>:
-    name: ""
-    role: ""
-    bullet1: ""
-    bullet2: ""
-    bullet3: ""
-    orientation: "vertical"
-    spacing: dp(8)
-    padding: dp(14)
-    size_hint_y: None
-    height: self.minimum_height
-    canvas.before:
-        Color:
-            rgba: card_color
-        RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [dp(14)]
-    Label:
-        text: root.role
-        color: accent_color
-        font_size: "14sp"
-        size_hint_y: None
-        height: self.texture_size[1]
-    Label:
-        text: root.name
-        color: text_color
-        bold: True
-        font_size: "18sp"
-        size_hint_y: None
-        height: self.texture_size[1]
-    BoxLayout:
-        orientation: "vertical"
-        spacing: dp(4)
-        size_hint_y: None
-        height: self.minimum_height
-        Label:
-            text: "\u2022 " + root.bullet1
-            color: muted_text
-            font_size: "13sp"
-            text_size: self.width, None
-            size_hint_y: None
-            height: self.texture_size[1]
-            halign: "left"
-            valign: "top"
-        Label:
-            text: "\u2022 " + root.bullet2
-            color: muted_text
-            font_size: "13sp"
-            text_size: self.width, None
-            size_hint_y: None
-            height: self.texture_size[1]
-            halign: "left"
-            valign: "top"
-        Label:
-            text: "\u2022 " + root.bullet3
-            color: muted_text
-            font_size: "13sp"
-            text_size: self.width, None
-            size_hint_y: None
-            height: self.texture_size[1]
-            halign: "left"
-            valign: "top"
-
-<DetailedServiceCard>:
-    title: ""
-    summary: ""
-    bullet1: ""
-    bullet2: ""
-    bullet3: ""
-    orientation: "vertical"
-    spacing: dp(8)
-    padding: dp(14)
-    size_hint_y: None
-    height: self.minimum_height
-    canvas.before:
-        Color:
-            rgba: card_color
-        RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [dp(14)]
-    Label:
-        text: root.title
-        color: text_color
-        bold: True
-        font_size: "18sp"
-        size_hint_y: None
-        height: self.texture_size[1]
-    Label:
-        text: root.summary
-        color: muted_text
-        font_size: "14sp"
-        text_size: self.width, None
-        halign: "left"
-        valign: "top"
-        size_hint_y: None
-        height: self.texture_size[1]
-    BoxLayout:
-        orientation: "vertical"
-        spacing: dp(4)
-        size_hint_y: None
-        height: self.minimum_height
-        Label:
-            text: "\u2022 " + root.bullet1
-            color: muted_text
-            font_size: "13sp"
-            text_size: self.width, None
-            size_hint_y: None
-            height: self.texture_size[1]
-            halign: "left"
-            valign: "top"
-        Label:
-            text: "\u2022 " + root.bullet2
-            color: muted_text
-            font_size: "13sp"
-            text_size: self.width, None
-            size_hint_y: None
-            height: self.texture_size[1]
-            halign: "left"
-            valign: "top"
-        Label:
-            text: "\u2022 " + root.bullet3
-            color: muted_text
-            font_size: "13sp"
-            text_size: self.width, None
-            size_hint_y: None
-            height: self.texture_size[1]
-            halign: "left"
-            valign: "top"
+#:set muted_color 0.74, 0.79, 0.86, 1
 
 <NavButton@Button>:
+    target: ""
+    current_screen: ""
+    size_hint: None, None
+    width: dp(126)
+    height: dp(34)
     background_normal: ""
     background_down: ""
     background_color: 0, 0, 0, 0
     color: text_color
+    font_size: "12sp"
     bold: True
-    font_size: "15sp"
-    padding: dp(12), dp(10)
+    text_size: self.width - dp(12), None
+    halign: "center"
+    valign: "middle"
     canvas.before:
         Color:
-            rgba: (0.18, 0.23, 0.32, 1) if self.state == "normal" else (0.24, 0.30, 0.40, 1)
+            rgba: accent_color if root.target == root.current_screen else card_color
         RoundedRectangle:
             pos: self.pos
             size: self.size
             radius: [dp(10)]
+    on_release: app.go(root.target)
 
 <PrimaryButton@Button>:
+    size_hint_y: None
+    height: dp(46)
     background_normal: ""
     background_down: ""
-    background_color: accent_color
-    color: (0.08, 0.10, 0.12, 1)
+    background_color: 0, 0, 0, 0
+    color: (0.06, 0.09, 0.13, 1)
     bold: True
-    font_size: "16sp"
-    padding: dp(16), dp(14)
+    font_size: "15sp"
     canvas.before:
         Color:
             rgba: accent_color
@@ -309,15 +48,16 @@
             radius: [dp(12)]
 
 <GhostButton@Button>:
+    size_hint_y: None
+    height: dp(46)
     background_normal: ""
     background_down: ""
     background_color: 0, 0, 0, 0
     color: text_color
-    font_size: "16sp"
-    padding: dp(16), dp(14)
+    font_size: "15sp"
     canvas.before:
         Color:
-            rgba: (0.18, 0.23, 0.32, 1) if self.state == "normal" else (0.24, 0.30, 0.40, 1)
+            rgba: card_color
         RoundedRectangle:
             pos: self.pos
             size: self.size
@@ -326,462 +66,613 @@
 <SectionTitle@Label>:
     color: text_color
     bold: True
-    font_size: "22sp"
+    font_size: "24sp"
+    text_size: self.width, None
+    halign: "left"
+    valign: "middle"
     size_hint_y: None
     height: self.texture_size[1]
 
-<SectionSubtitle@Label>:
-    color: muted_text
+<BodyText@Label>:
+    color: muted_color
     font_size: "15sp"
+    text_size: self.width, None
     halign: "left"
     valign: "top"
-    text_size: self.width, None
     size_hint_y: None
     height: self.texture_size[1]
 
-<ServiceCard>:
+<BadgeCard@BoxLayout>:
+    value: ""
+    caption: ""
+    orientation: "vertical"
+    padding: dp(12)
+    spacing: dp(4)
     size_hint_y: None
     height: self.minimum_height
-    orientation: "vertical"
-    spacing: dp(8)
-    padding: dp(14)
     canvas.before:
         Color:
             rgba: card_color
         RoundedRectangle:
             pos: self.pos
             size: self.size
-            radius: [dp(14)]
+            radius: [dp(12)]
     Label:
-        text: root.title
+        text: root.value
         color: text_color
         bold: True
-        font_size: "18sp"
+        font_size: "20sp"
+        text_size: self.width, None
+        halign: "left"
+        valign: "middle"
         size_hint_y: None
         height: self.texture_size[1]
     Label:
-        text: root.description
-        color: muted_text
-        font_size: "15sp"
+        text: root.caption
+        color: muted_color
+        font_size: "14sp"
         text_size: self.width, None
         halign: "left"
         valign: "top"
         size_hint_y: None
         height: self.texture_size[1]
 
-<HomeScreen>:
-    name: "home"
+<InfoCard@BoxLayout>:
+    title: ""
+    body: ""
+    orientation: "vertical"
+    padding: dp(14)
+    spacing: dp(8)
+    size_hint_y: None
+    height: self.minimum_height
+    canvas.before:
+        Color:
+            rgba: card_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(12)]
+    Label:
+        text: root.title
+        color: text_color
+        bold: True
+        font_size: "18sp"
+        text_size: self.width, None
+        halign: "left"
+        valign: "middle"
+        size_hint_y: None
+        height: self.texture_size[1]
+    Label:
+        text: root.body
+        color: muted_color
+        font_size: "14sp"
+        text_size: self.width, None
+        halign: "left"
+        valign: "top"
+        size_hint_y: None
+        height: self.texture_size[1]
+
+<DetailCard@BoxLayout>:
+    heading: ""
+    summary: ""
+    bullet1: ""
+    bullet2: ""
+    bullet3: ""
+    orientation: "vertical"
+    padding: dp(14)
+    spacing: dp(6)
+    size_hint_y: None
+    height: self.minimum_height
+    canvas.before:
+        Color:
+            rgba: card_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(12)]
+    Label:
+        text: root.heading
+        color: accent_color
+        bold: True
+        font_size: "14sp"
+        text_size: self.width, None
+        halign: "left"
+        valign: "middle"
+        size_hint_y: None
+        height: self.texture_size[1]
+    Label:
+        text: root.summary
+        color: text_color
+        font_size: "15sp"
+        text_size: self.width, None
+        halign: "left"
+        valign: "top"
+        size_hint_y: None
+        height: self.texture_size[1]
+    Label:
+        text: "• " + root.bullet1
+        color: muted_color
+        font_size: "13sp"
+        text_size: self.width, None
+        halign: "left"
+        valign: "top"
+        size_hint_y: None
+        height: self.texture_size[1]
+    Label:
+        text: "• " + root.bullet2
+        color: muted_color
+        font_size: "13sp"
+        text_size: self.width, None
+        halign: "left"
+        valign: "top"
+        size_hint_y: None
+        height: self.texture_size[1]
+    Label:
+        text: "• " + root.bullet3
+        color: muted_color
+        font_size: "13sp"
+        text_size: self.width, None
+        halign: "left"
+        valign: "top"
+        size_hint_y: None
+        height: self.texture_size[1]
+
+<ScreenHeader@BoxLayout>:
+    current_screen: ""
+    orientation: "vertical"
+    size_hint_y: None
+    height: dp(112)
+    spacing: dp(8)
+    padding: dp(10), dp(8)
+    canvas.before:
+        Color:
+            rgba: header_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
     BoxLayout:
-        orientation: "vertical"
-        canvas.before:
-            Color:
-                rgba: surface_color
-            Rectangle:
-                pos: self.pos
-                size: self.size
+        size_hint_y: None
+        height: dp(36)
+        spacing: dp(10)
+        Image:
+            source: app.logo_source
+            size_hint: None, None
+            size: dp(36), dp(36)
         BoxLayout:
-            size_hint_y: None
-            height: dp(64)
-            padding: dp(16), dp(12)
-            spacing: dp(8)
-            canvas.before:
-                Color:
-                    rgba: (0.10, 0.14, 0.20, 1)
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
+            orientation: "vertical"
+            spacing: dp(2)
             Label:
                 text: "Engenho Digital"
                 color: text_color
                 bold: True
-                font_size: "20sp"
+                font_size: "18sp"
+                text_size: self.width, None
                 halign: "left"
                 valign: "middle"
-            BoxLayout:
-                size_hint_x: None
-                width: dp(220)
-                spacing: dp(8)
-                NavButton:
-                    text: "Home"
-                    on_release: app.root.current = "home"
-                NavButton:
-                    text: "Serviços"
-                    on_release: app.root.current = "services"
-                NavButton:
-                    text: "Contato"
-                    on_release: app.root.current = "contact"
+            Label:
+                text: "Projetos & Sistemas"
+                color: muted_color
+                font_size: "12sp"
+                text_size: self.width, None
+                halign: "left"
+                valign: "middle"
+    ScrollView:
+        do_scroll_y: False
+        bar_width: 0
+        BoxLayout:
+            size_hint_x: None
+            width: self.minimum_width
+            height: dp(36)
+            spacing: dp(8)
+            NavButton:
+                text: "1 Início"
+                target: "intro"
+                current_screen: root.current_screen
+            NavButton:
+                text: "2 Empresa"
+                target: "empresa"
+                current_screen: root.current_screen
+            NavButton:
+                text: "3 O que fazemos"
+                target: "o_que_fazemos"
+                current_screen: root.current_screen
+            NavButton:
+                text: "4 Software"
+                target: "servico_software"
+                current_screen: root.current_screen
+            NavButton:
+                text: "5 Elétrica"
+                target: "servico_eletrica"
+                current_screen: root.current_screen
+            NavButton:
+                text: "6 Dados"
+                target: "servico_dados"
+                current_screen: root.current_screen
+            NavButton:
+                text: "7 Raphael"
+                target: "perfil_raphael"
+                current_screen: root.current_screen
+            NavButton:
+                text: "8 Edgar"
+                target: "perfil_edgar"
+                current_screen: root.current_screen
+            NavButton:
+                text: "9 Projetos"
+                target: "projetos"
+                current_screen: root.current_screen
+            NavButton:
+                text: "10 Contato"
+                target: "contato"
+                current_screen: root.current_screen
+
+<IntroScreen@Screen>:
+    name: "intro"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: bg_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        ScreenHeader:
+            current_screen: "intro"
         ScrollView:
             do_scroll_x: False
             BoxLayout:
                 orientation: "vertical"
+                padding: dp(16)
+                spacing: dp(14)
                 size_hint_y: None
                 height: self.minimum_height
-                padding: dp(18), dp(18)
-                spacing: dp(16)
-                Image:
-                    source: app.logo_source
-                    size_hint_y: None
-                    height: dp(140)
-                Label:
-                    text: root.hero_title
-                    color: text_color
-                    font_size: "26sp"
-                    bold: True
-                    size_hint_y: None
-                    height: self.texture_size[1]
-                Label:
-                    text: root.hero_subtitle
-                    color: accent_color
-                    font_size: "18sp"
-                    size_hint_y: None
-                    height: self.texture_size[1]
-                Label:
-                    text: root.hero_tagline
-                    color: text_color
-                    font_size: "18sp"
-                    bold: True
-                    size_hint_y: None
-                    height: self.texture_size[1]
-                Label:
-                    text: root.hero_body
-                    color: muted_text
-                    font_size: "15sp"
-                    text_size: self.width, None
-                    halign: "left"
-                    valign: "top"
-                    size_hint_y: None
-                    height: self.texture_size[1]
+                SectionTitle:
+                    text: "Engenharia de software & projetos elétricos"
+                BodyText:
+                    text: "Soluções digitais e elétricas para tirar seus projetos do papel."
+                BodyText:
+                    text: "A Engenho Digital integra desenvolvimento de softwares sob medida, projetos elétricos em CAD/CAM e automação de processos. Combinamos engenharia, dados e experiência em campo para entregar soluções enxutas, modernas e prontas para produção."
                 BoxLayout:
                     size_hint_y: None
-                    height: dp(54)
-                    spacing: dp(12)
+                    height: dp(46)
+                    spacing: dp(10)
                     PrimaryButton:
-                        text: root.cta_primary
-                        on_release: app.root.current = "contact"
+                        text: "Agendar conversa técnica"
+                        on_release: app.go("contato")
                     GhostButton:
-                        text: root.cta_secondary
-                        on_release: app.root.current = "services"
-                BoxLayout:
-                    id: stats_box
-                    size_hint_y: None
-                    height: self.minimum_height
-                    spacing: dp(10)
-                    RecycleView:
-                        viewclass: "StatChip"
-                        data: [{"title": item["value"], "caption": item["label"]} for item in root.stats]
-                        RecycleBoxLayout:
-                            default_size: None, dp(90)
-                            default_size_hint: 1, None
-                            size_hint_y: None
-                            height: self.minimum_height
-                            spacing: dp(10)
-                            orientation: "vertical"
-                Label:
+                        text: "Ver projetos em destaque"
+                        on_release: app.go("projetos")
+                SectionTitle:
+                    text: "Números rápidos"
+                BadgeCard:
+                    value: "+10"
+                    caption: "Anos com tecnologia"
+                BadgeCard:
+                    value: "Full-stack"
+                    caption: "Web · APIs · Data"
+                BadgeCard:
+                    value: "CAD/CAM"
+                    caption: "Projetos elétricos detalhados"
+
+<CompanyScreen@Screen>:
+    name: "empresa"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: bg_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        ScreenHeader:
+            current_screen: "empresa"
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                orientation: "vertical"
+                padding: dp(16)
+                spacing: dp(14)
+                size_hint_y: None
+                height: self.minimum_height
+                SectionTitle:
+                    text: "Engenho Digital | Projetos & Sistemas"
+                BodyText:
+                    text: "Serviços, projetos e contato em um só app para facilitar a comunicação técnica com sua equipe."
+                InfoCard:
+                    title: "Quem somos"
+                    body: "A Engenho Digital integra desenvolvimento de softwares sob medida, projetos elétricos em CAD/CAM e automação de processos para tirar projetos do papel com rapidez e clareza técnica."
+                InfoCard:
+                    title: "Como atuamos"
+                    body: "Atuamos desde o estudo de viabilidade até a entrega em produção, com foco em documentação clara, rastreabilidade e aderência a normas técnicas."
+                InfoCard:
+                    title: "Fale com a gente"
+                    body: "Use a tela de contato para iniciar uma conversa técnica, enviar e-mail e acessar os canais oficiais da empresa."
+
+<WhatWeDoScreen@Screen>:
+    name: "o_que_fazemos"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: bg_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        ScreenHeader:
+            current_screen: "o_que_fazemos"
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                orientation: "vertical"
+                padding: dp(16)
+                spacing: dp(12)
+                size_hint_y: None
+                height: self.minimum_height
+                SectionTitle:
                     text: "O que fazemos"
-                    color: text_color
-                    font_size: "22sp"
-                    bold: True
-                    size_hint_y: None
-                    height: self.texture_size[1]
-                RecycleView:
-                    viewclass: "PillarCard"
-                    do_scroll_x: False
-                    data: [{"title": item["title"], "description": item["description"]} for item in root.pillars]
-                    RecycleBoxLayout:
-                        default_size: None, dp(120)
-                        default_size_hint: 1, None
-                        size_hint_y: None
-                        height: self.minimum_height
-                        spacing: dp(10)
-                        orientation: "vertical"
-                Label:
-                    text: "Quem assina os projetos"
-                    color: text_color
-                    font_size: "22sp"
-                    bold: True
-                    size_hint_y: None
-                    height: self.texture_size[1]
-                RecycleView:
-                    viewclass: "ProfileCard"
-                    do_scroll_x: False
-                    data: [{"name": p["name"], "role": p["role"], "bullet1": p["bullets"][0], "bullet2": p["bullets"][1], "bullet3": p["bullets"][2]} for p in root.profiles]
-                    RecycleBoxLayout:
-                        default_size: None, dp(160)
-                        default_size_hint: 1, None
-                        size_hint_y: None
-                        height: self.minimum_height
-                        spacing: dp(12)
-                        orientation: "vertical"
-                Label:
+                InfoCard:
+                    title: "1) Software sob medida para o seu negócio"
+                    body: "Sistemas web em Flask, React e cloud, focados em automação, dashboards e integrações."
+                InfoCard:
+                    title: "2) Projetos elétricos em CAD/CAM"
+                    body: "Plantas, diagramas, quadros e detalhamento técnico para obras, indústrias e escritórios de engenharia."
+                InfoCard:
+                    title: "3) Consultoria em dados e automação"
+                    body: "Uso inteligente de dados para reduzir retrabalho, padronizar processos e ganhar previsibilidade."
+
+<SoftwareServiceScreen@Screen>:
+    name: "servico_software"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: bg_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        ScreenHeader:
+            current_screen: "servico_software"
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                orientation: "vertical"
+                padding: dp(16)
+                spacing: dp(12)
+                size_hint_y: None
+                height: self.minimum_height
+                SectionTitle:
+                    text: "Desenvolvimento de Software"
+                BodyText:
+                    text: "Aplicações web modernas usando Flask, React, APIs em Python e bancos de dados relacionais e NoSQL."
+                DetailCard:
+                    heading: "Entregas"
+                    summary: "Soluções completas para operação, gestão e integração de sistemas."
+                    bullet1: "Sistemas internos e portais web"
+                    bullet2: "Dashboards para indicadores de gestão"
+                    bullet3: "Integração com serviços em nuvem e APIs"
+
+<ElectricalServiceScreen@Screen>:
+    name: "servico_eletrica"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: bg_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        ScreenHeader:
+            current_screen: "servico_eletrica"
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                orientation: "vertical"
+                padding: dp(16)
+                spacing: dp(12)
+                size_hint_y: None
+                height: self.minimum_height
+                SectionTitle:
+                    text: "Projetos Elétricos CAD/CAM"
+                BodyText:
+                    text: "Projetos em AutoCAD e ferramentas CAM para instalações elétricas prediais, industriais e de infraestrutura."
+                DetailCard:
+                    heading: "Entregas"
+                    summary: "Documentação técnica pronta para aprovação e execução."
+                    bullet1: "Diagramas unifilares e trifilares"
+                    bullet2: "Layouts de iluminação e tomadas"
+                    bullet3: "Quadros de cargas, listas de materiais e detalhamento"
+
+<DataServiceScreen@Screen>:
+    name: "servico_dados"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: bg_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        ScreenHeader:
+            current_screen: "servico_dados"
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                orientation: "vertical"
+                padding: dp(16)
+                spacing: dp(12)
+                size_hint_y: None
+                height: self.minimum_height
+                SectionTitle:
+                    text: "Automação & Dados"
+                BodyText:
+                    text: "Modelagem de dados, automação de relatórios e criação de pipelines que aliviam o trabalho manual do dia a dia."
+                DetailCard:
+                    heading: "Entregas"
+                    summary: "Estruturação de dados para decisão rápida e previsível."
+                    bullet1: "Rotinas de ETL/ELT para planilhas e bancos"
+                    bullet2: "Automatização de relatórios técnicos e laudos"
+                    bullet3: "Suporte para uso de inteligência artificial aplicada ao negócio"
+
+<RaphaelScreen@Screen>:
+    name: "perfil_raphael"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: bg_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        ScreenHeader:
+            current_screen: "perfil_raphael"
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                orientation: "vertical"
+                padding: dp(16)
+                spacing: dp(12)
+                size_hint_y: None
+                height: self.minimum_height
+                SectionTitle:
+                    text: "Engenharia & Dados"
+                BodyText:
+                    text: "Raphael Hendrigo de Souza Gonçalves"
+                BodyText:
+                    text: "Engenheiro de Computação, Engenheiro Eletricista e Engenheiro de Alimentos, com sólida experiência em desenvolvimento de sistemas e ciência de dados aplicada a negócios. Atua em projetos que combinam arquitetura de software, integração entre APIs e criação de pipelines inteligentes."
+                DetailCard:
+                    heading: "Destaques"
+                    summary: "Liderança técnica com foco em soluções aplicáveis ao negócio."
+                    bullet1: "Liderança técnica em soluções web, automação e analytics"
+                    bullet2: "Pós-graduando no MBA de Ciência de Dados do USP ICMC em São Carlos (SP)"
+                    bullet3: "Especialista em transformar dados operacionais em insights acionáveis"
+
+<EdgarScreen@Screen>:
+    name: "perfil_edgar"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: bg_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        ScreenHeader:
+            current_screen: "perfil_edgar"
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                orientation: "vertical"
+                padding: dp(16)
+                spacing: dp(12)
+                size_hint_y: None
+                height: self.minimum_height
+                SectionTitle:
+                    text: "Projetos Elétricos & CAD/CAM"
+                BodyText:
+                    text: "Edgar de Almeida"
+                BodyText:
+                    text: "Especialista em projetos elétricos detalhados e integração CAD/CAM, com forte atuação em plantas industriais, escritórios corporativos e instalações críticas. Estrutura equipes, define padrões e garante que cada documento esteja pronto para aprovação."
+                DetailCard:
+                    heading: "Destaques"
+                    summary: "Conformidade técnica, eficiência energética e documentação executiva."
+                    bullet1: "Domínio de plataformas CAD, modelagem 2D/3D e detalhamento executivo"
+                    bullet2: "Experiência em coordenação de listas de materiais, diagramas e quadros de cargas"
+                    bullet3: "Referência para garantir conformidade técnica e eficiência energética"
+
+<ProjectsScreen@Screen>:
+    name: "projetos"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: bg_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        ScreenHeader:
+            current_screen: "projetos"
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                orientation: "vertical"
+                padding: dp(16)
+                spacing: dp(12)
+                size_hint_y: None
+                height: self.minimum_height
+                SectionTitle:
                     text: "Projetos em destaque"
-                    color: text_color
-                    font_size: "22sp"
-                    bold: True
-                    size_hint_y: None
-                    height: self.texture_size[1]
-                RecycleView:
-                    viewclass: "ProjectCard"
-                    do_scroll_x: False
-                    data: [{"category": p["category"], "title": p["title"], "summary": p["summary"], "bullet1": p["bullets"][0], "bullet2": p["bullets"][1], "bullet3": p["bullets"][2]} for p in root.highlight_projects]
-                    RecycleBoxLayout:
-                        default_size: None, dp(200)
-                        default_size_hint: 1, None
-                        size_hint_y: None
-                        height: self.minimum_height
-                        spacing: dp(12)
-                        orientation: "vertical"
-                BoxLayout:
-                    orientation: "vertical"
-                    spacing: dp(8)
-                    size_hint_y: None
-                    height: self.minimum_height
-                    canvas.before:
-                        Color:
-                            rgba: (0.10, 0.14, 0.20, 1)
-                        RoundedRectangle:
-                            pos: self.pos
-                            size: self.size
-                            radius: [dp(14)]
-                    padding: dp(14)
-                Label:
+                BodyText:
+                    text: "Alguns exemplos de como aplicamos tecnologia e engenharia para resolver problemas reais."
+                DetailCard:
+                    heading: "SOFTWARE · GESTÃO"
+                    summary: "Portal de Automação de Processos Internos: sistema web em Python/Flask integrado à nuvem para controle de demandas, geração automática de documentos e painéis gerenciais."
+                    bullet1: "Redução de retrabalho operacional"
+                    bullet2: "Histórico completo e rastreabilidade"
+                    bullet3: "Exportação de relatórios em poucos cliques"
+                DetailCard:
+                    heading: "ELÉTRICA · CAD/CAM"
+                    summary: "Projeto Elétrico de Escritório Corporativo com plantas, diagramas e quadros de cargas para implantação de novo escritório, com foco em segurança e eficiência energética."
+                    bullet1: "Layout em CAD com revisões controladas"
+                    bullet2: "Documentação pronta para aprovação"
+                    bullet3: "Lista de materiais organizada por ambiente"
+                DetailCard:
+                    heading: "DADOS · AUTOMAÇÃO"
+                    summary: "Monitoramento de Indicadores Técnicos com pipeline para concentrar informações em um único painel e acelerar decisões baseadas em evidências."
+                    bullet1: "Integração de múltiplas fontes de dados"
+                    bullet2: "Atualização automática de métricas"
+                    bullet3: "Visualização clara para times técnicos e gestores"
+
+<ContactScreen@Screen>:
+    name: "contato"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: bg_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        ScreenHeader:
+            current_screen: "contato"
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                orientation: "vertical"
+                padding: dp(16)
+                spacing: dp(12)
+                size_hint_y: None
+                height: self.minimum_height
+                SectionTitle:
                     text: "Vamos tirar seu projeto do papel?"
-                        color: text_color
-                        font_size: "20sp"
-                        bold: True
-                        size_hint_y: None
-                        height: self.texture_size[1]
-                    Label:
-                        text: "Envie um resumo da sua necessidade em software ou projetos elétricos e retornamos com abordagem técnica e prazos."
-                        color: muted_text
-                        font_size: "14sp"
-                        text_size: self.width, None
-                        halign: "left"
-                        valign: "top"
-                        size_hint_y: None
-                        height: self.texture_size[1]
-                    PrimaryButton:
-                        text: "Fale com a gente"
-                        size_hint_y: None
-                        height: dp(48)
-                        on_release: app.root.current = "contact"
-
-<ServicesScreen>:
-    name: "services"
-    BoxLayout:
-        orientation: "vertical"
-        canvas.before:
-            Color:
-                rgba: surface_color
-            Rectangle:
-                pos: self.pos
-                size: self.size
-        BoxLayout:
-            size_hint_y: None
-            height: dp(64)
-            padding: dp(16), dp(12)
-            spacing: dp(8)
-            canvas.before:
-                Color:
-                    rgba: (0.10, 0.14, 0.20, 1)
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-                Label:
-                    text: "Serviços"
-                color: text_color
-                bold: True
-                font_size: "20sp"
-                halign: "left"
-                valign: "middle"
-            BoxLayout:
-                size_hint_x: None
-                width: dp(220)
-                spacing: dp(8)
-                NavButton:
-                    text: "Home"
-                    on_release: app.root.current = "home"
-                NavButton:
-                    text: "Serviços"
-                    on_release: app.root.current = "services"
-                NavButton:
-                    text: "Contato"
-                    on_release: app.root.current = "contact"
-        BoxLayout:
-            orientation: "vertical"
-            padding: dp(18)
-            spacing: dp(12)
-                Label:
-                    text: "O que fazemos"
-                color: text_color
-                font_size: "24sp"
-                bold: True
-                size_hint_y: None
-                height: self.texture_size[1]
-                Label:
-                    text: "Serviços que conectam engenharia, software e dados."
-                color: muted_text
-                font_size: "15sp"
-                text_size: self.width, None
-                halign: "left"
-                valign: "top"
-                size_hint_y: None
-                height: self.texture_size[1]
-            RecycleView:
-                viewclass: "ServiceCard"
-                do_scroll_x: False
-                scroll_type: ["bars", "content"]
-                bar_width: dp(6)
-                data: [{"title": item["title"], "description": item["description"]} for item in root.services]
-                RecycleBoxLayout:
-                    default_size: None, dp(120)
-                    default_size_hint: 1, None
-                    size_hint_y: None
-                    height: self.minimum_height
-                    spacing: dp(12)
-                    orientation: "vertical"
-            Label:
-                text: "Etapas e entregas"
-                color: text_color
-                font_size: "20sp"
-                bold: True
-                size_hint_y: None
-                height: self.texture_size[1]
-            RecycleView:
-                viewclass: "PillarCard"
-                do_scroll_x: False
-                data: [{"title": f"{item['index']}. {item['title']}", "description": item["description"]} for item in root.overview]
-                RecycleBoxLayout:
-                    default_size: None, dp(110)
-                    default_size_hint: 1, None
-                    size_hint_y: None
-                    height: self.minimum_height
-                    spacing: dp(10)
-                    orientation: "vertical"
-                Label:
-                    text: "Detalhamento de serviços"
-                color: text_color
-                font_size: "20sp"
-                bold: True
-                size_hint_y: None
-                height: self.texture_size[1]
-            RecycleView:
-                viewclass: "DetailedServiceCard"
-                do_scroll_x: False
-                data: [{"title": item["title"], "summary": item["summary"], "bullet1": item["bullets"][0], "bullet2": item["bullets"][1], "bullet3": item["bullets"][2]} for item in root.detailed_services]
-                RecycleBoxLayout:
-                    default_size: None, dp(170)
-                    default_size_hint: 1, None
-                    size_hint_y: None
-                    height: self.minimum_height
-                    spacing: dp(12)
-                    orientation: "vertical"
-
-<ContactScreen>:
-    name: "contact"
-    BoxLayout:
-        orientation: "vertical"
-        canvas.before:
-            Color:
-                rgba: surface_color
-            Rectangle:
-                pos: self.pos
-                size: self.size
-        BoxLayout:
-            size_hint_y: None
-            height: dp(64)
-            padding: dp(16), dp(12)
-            spacing: dp(8)
-            canvas.before:
-                Color:
-                    rgba: (0.10, 0.14, 0.20, 1)
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            Label:
-                text: "Contato"
-                color: text_color
-                bold: True
-                font_size: "20sp"
-                halign: "left"
-                valign: "middle"
-            BoxLayout:
-                size_hint_x: None
-                width: dp(220)
-                spacing: dp(8)
-                NavButton:
-                    text: "Home"
-                    on_release: app.root.current = "home"
-                NavButton:
-                    text: "Serviços"
-                    on_release: app.root.current = "services"
-                NavButton:
-                    text: "Contato"
-                    on_release: app.root.current = "contact"
-        BoxLayout:
-            orientation: "vertical"
-            padding: dp(18)
-            spacing: dp(16)
-            Label:
-                text: "Vamos conversar?"
-                color: text_color
-                font_size: "24sp"
-                bold: True
-                size_hint_y: None
-                height: self.texture_size[1]
-            Label:
-                text: "Envie um resumo da sua necessidade em software ou projetos elétricos e retornamos com abordagem técnica."
-                color: muted_text
-                font_size: "15sp"
-                text_size: self.width, None
-                halign: "left"
-                valign: "top"
-                size_hint_y: None
-                height: self.texture_size[1]
-            PrimaryButton:
-                text: "Abrir site"
-                on_release: root.open_website()
-            GhostButton:
-                text: "Chamar no WhatsApp"
-                on_release: root.open_whatsapp()
-            GhostButton:
-                text: "Enviar e-mail"
-                on_release: root.open_email()
-            GhostButton:
-                text: "Política de privacidade"
-                on_release: root.open_privacy_policy()
-            Label:
-                text: root.website_url
-                color: muted_text
-                font_size: "14sp"
-                text_size: self.width, None
-                halign: "left"
-                valign: "top"
-                size_hint_y: None
-                height: self.texture_size[1]
-            Label:
-                text: "WhatsApp: " + root.support_phone
-                color: muted_text
-                font_size: "14sp"
-                text_size: self.width, None
-                halign: "left"
-                valign: "top"
-                size_hint_y: None
-                height: self.texture_size[1]
-            Label:
-                text: "E-mail: " + root.email_address
-                color: muted_text
-                font_size: "14sp"
-                text_size: self.width, None
-                halign: "left"
-                valign: "top"
-                size_hint_y: None
-                height: self.texture_size[1]
+                BodyText:
+                    text: "Envie um resumo da sua necessidade em software ou projeto elétrico e retornaremos com uma proposta de abordagem técnica e prazos estimados."
+                InfoCard:
+                    title: "Canais de contato"
+                    body: "E-mail: " + app.email_address + "\nWhatsApp: " + app.support_phone
+                PrimaryButton:
+                    text: "Abrir site oficial"
+                    on_release: app.open_url(app.website_url)
+                GhostButton:
+                    text: "Enviar e-mail"
+                    on_release: app.open_email()
+                GhostButton:
+                    text: "Falar no WhatsApp"
+                    on_release: app.open_whatsapp()
+                GhostButton:
+                    text: "Política de privacidade"
+                    on_release: app.open_url(app.privacy_policy_url)
+                BodyText:
+                    text: "© 2025 Engenho Digital Projetos & Sistemas. Todos os direitos reservados."
+                BodyText:
+                    text: "Site desenvolvido em Flask + Tailwind CSS e preparado para deploy no Google Cloud Platform."
 
 ScreenManager:
-    transition: FadeTransition(duration=0.25)
-    HomeScreen:
-        name: "home"
-    ServicesScreen:
-        name: "services"
+    IntroScreen:
+    CompanyScreen:
+    WhatWeDoScreen:
+    SoftwareServiceScreen:
+    ElectricalServiceScreen:
+    DataServiceScreen:
+    RaphaelScreen:
+    EdgarScreen:
+    ProjectsScreen:
     ContactScreen:
-        name: "contact"

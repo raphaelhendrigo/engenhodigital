@@ -1,8 +1,35 @@
-O App Engenho é a plataforma oficial da Engenho Digital, desenvolvida para facilitar o acesso a serviços, informações, suporte e soluções digitais de forma prática, segura e centralizada. O aplicativo foi criado para aproximar usuários, clientes e parceiros das soluções tecnológicas oferecidas pela Engenho Digital, proporcionando uma experiência moderna e eficiente.
+Engenho Digital | Projetos & Sistemas
 
-Por meio do App Engenho, o usuário pode acompanhar novidades, solicitar suporte, acessar canais de atendimento, receber comunicados importantes e interagir com funcionalidades digitais pensadas para otimizar processos e a comunicação. O aplicativo utiliza infraestrutura moderna em nuvem, seguindo boas práticas de segurança da informação e proteção de dados, garantindo estabilidade, desempenho e confiabilidade.
+Engenharia de software e projetos elétricos para tirar seus projetos do papel.
 
-O App Engenho é constantemente aprimorado para oferecer melhor usabilidade, novos recursos e maior integração com os serviços digitais da Engenho Digital. Nosso objetivo é entregar uma solução simples, funcional e alinhada às necessidades reais dos usuários, contribuindo para a transformação digital de negócios, projetos e atendimentos.
+A Engenho Digital integra desenvolvimento de softwares sob medida, projetos elétricos em CAD/CAM e automação de processos. Combinamos engenharia, dados e experiência em campo para entregar soluções enxutas, modernas e prontas para produção.
 
-Baixe o App Engenho e tenha a Engenho Digital sempre ao seu alcance.
+O que você encontra no app:
+• Visão completa dos serviços da Engenho Digital
+• Portfólio com projetos em destaque
+• Perfil dos especialistas responsáveis pelas entregas
+• Canais diretos de contato para atendimento técnico
 
+Principais serviços:
+
+1) Desenvolvimento de Software
+Aplicações web modernas usando Flask, React, APIs em Python e bancos de dados relacionais e NoSQL.
+• Sistemas internos e portais web
+• Dashboards para indicadores de gestão
+• Integração com serviços em nuvem e APIs
+
+2) Projetos Elétricos CAD/CAM
+Projetos em AutoCAD e ferramentas CAM para instalações elétricas prediais, industriais e de infraestrutura.
+• Diagramas unifilares e trifilares
+• Layouts de iluminação e tomadas
+• Quadros de cargas, listas de materiais e detalhamento
+
+3) Automação & Dados
+Modelagem de dados, automação de relatórios e criação de pipelines para reduzir trabalho manual.
+• Rotinas de ETL/ELT para planilhas e bancos
+• Automatização de relatórios técnicos e laudos
+• Suporte para uso de inteligência artificial aplicada ao negócio
+
+Nosso foco é entregar solução com documentação clara, rastreabilidade e aderência às normas técnicas.
+
+Baixe o app e fale com a Engenho Digital.

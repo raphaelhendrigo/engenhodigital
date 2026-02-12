@@ -4,8 +4,8 @@ APP_NAME = "Engenho Digital"
 TAGLINE = "Projetos & Sistemas"
 
 WEBSITE_URL = "https://www.engenhodigitalweb.com.br"
-WHATSAPP_URL = "https://wa.me/5512992451418"
-EMAIL_ADDRESS = "raphael.hendrigo@gmail.com"
+WHATSAPP_URL = ""
+EMAIL_ADDRESS = "contato@engenhodigitalweb.com.br"
 PRIVACY_POLICY_URL = "https://sites.google.com/view/engenhodigital/in%C3%ADcio"
 
-SUPPORT_PHONE = "+55 12 99245-1418"
+SUPPORT_PHONE = "(coloque aqui o número oficial da empresa)"
