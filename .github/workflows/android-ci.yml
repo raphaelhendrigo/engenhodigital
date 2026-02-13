@@ -114,7 +114,64 @@ jobs:
             echo "ANDROIDSDK=$ANDROID_SDK_ROOT"
             echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/25.2.9519653"
             echo "ANDROIDNDK=$ANDROID_SDK_ROOT/ndk/25.2.9519653"
+            echo "ANDROID_SDK_PATH=$ANDROID_SDK_ROOT"
+            echo "ANDROID_NDK_PATH=$ANDROID_SDK_ROOT/ndk/25.2.9519653"
           } >> "$GITHUB_ENV"
+
+      - name: Patch buildozer.spec for CI SDK/NDK paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          spec_path = Path("buildozer.spec")
+          sdk_path = os.environ["ANDROID_SDK_PATH"]
+          ndk_path = os.environ["ANDROID_NDK_PATH"]
+
+          lines = spec_path.read_text(encoding="utf-8").splitlines()
+          out: list[str] = []
+          in_app = False
+          saw_sdk = False
+          saw_ndk = False
+
+          for line in lines:
+              stripped = line.strip()
+              if stripped == "[app]":
+                  in_app = True
+                  out.append(line)
+                  continue
+
+              if in_app and stripped.startswith("[") and stripped.endswith("]"):
+                  if not saw_sdk:
+                      out.append(f"android.sdk_path = {sdk_path}")
+                  if not saw_ndk:
+                      out.append(f"android.ndk_path = {ndk_path}")
+                  in_app = False
+
+              if in_app and stripped.startswith("android.sdk_path"):
+                  out.append(f"android.sdk_path = {sdk_path}")
+                  saw_sdk = True
+                  continue
+
+              if in_app and stripped.startswith("android.ndk_path"):
+                  out.append(f"android.ndk_path = {ndk_path}")
+                  saw_ndk = True
+                  continue
+
+              out.append(line)
+
+          if in_app:
+              if not saw_sdk:
+                  out.append(f"android.sdk_path = {sdk_path}")
+              if not saw_ndk:
+                  out.append(f"android.ndk_path = {ndk_path}")
+
+          spec_path.write_text("\n".join(out) + "\n", encoding="utf-8")
+          print(f"Patched buildozer.spec with android.sdk_path={sdk_path}")
+          print(f"Patched buildozer.spec with android.ndk_path={ndk_path}")
+          PY
 
       - name: Build (debug)
         run: buildozer android debug
