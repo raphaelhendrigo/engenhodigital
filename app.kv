@@ -10,15 +10,15 @@
     target: ""
     current_screen: ""
     size_hint: None, None
-    width: dp(126)
+    width: dp(120)
     height: dp(34)
     background_normal: ""
     background_down: ""
     background_color: 0, 0, 0, 0
     color: text_color
-    font_size: "12sp"
     bold: True
-    text_size: self.width - dp(12), None
+    font_size: "12sp"
+    text_size: self.width - dp(10), None
     halign: "center"
     valign: "middle"
     canvas.before:
@@ -81,41 +81,6 @@
     valign: "top"
     size_hint_y: None
     height: self.texture_size[1]
-
-<BadgeCard@BoxLayout>:
-    value: ""
-    caption: ""
-    orientation: "vertical"
-    padding: dp(12)
-    spacing: dp(4)
-    size_hint_y: None
-    height: self.minimum_height
-    canvas.before:
-        Color:
-            rgba: card_color
-        RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [dp(12)]
-    Label:
-        text: root.value
-        color: text_color
-        bold: True
-        font_size: "20sp"
-        text_size: self.width, None
-        halign: "left"
-        valign: "middle"
-        size_hint_y: None
-        height: self.texture_size[1]
-    Label:
-        text: root.caption
-        color: muted_color
-        font_size: "14sp"
-        text_size: self.width, None
-        halign: "left"
-        valign: "top"
-        size_hint_y: None
-        height: self.texture_size[1]
 
 <InfoCard@BoxLayout>:
     title: ""
@@ -190,7 +155,7 @@
         size_hint_y: None
         height: self.texture_size[1]
     Label:
-        text: "• " + root.bullet1
+        text: "- " + root.bullet1
         color: muted_color
         font_size: "13sp"
         text_size: self.width, None
@@ -199,7 +164,7 @@
         size_hint_y: None
         height: self.texture_size[1]
     Label:
-        text: "• " + root.bullet2
+        text: "- " + root.bullet2
         color: muted_color
         font_size: "13sp"
         text_size: self.width, None
@@ -208,7 +173,7 @@
         size_hint_y: None
         height: self.texture_size[1]
     Label:
-        text: "• " + root.bullet3
+        text: "- " + root.bullet3
         color: muted_color
         font_size: "13sp"
         text_size: self.width, None
@@ -265,48 +230,24 @@
             height: dp(36)
             spacing: dp(8)
             NavButton:
-                text: "1 Início"
-                target: "intro"
+                text: "Inicio"
+                target: "inicio"
                 current_screen: root.current_screen
             NavButton:
-                text: "2 Empresa"
-                target: "empresa"
+                text: "Servicos"
+                target: "servicos"
                 current_screen: root.current_screen
             NavButton:
-                text: "3 O que fazemos"
-                target: "o_que_fazemos"
+                text: "Equipe"
+                target: "equipe"
                 current_screen: root.current_screen
             NavButton:
-                text: "4 Software"
-                target: "servico_software"
-                current_screen: root.current_screen
-            NavButton:
-                text: "5 Elétrica"
-                target: "servico_eletrica"
-                current_screen: root.current_screen
-            NavButton:
-                text: "6 Dados"
-                target: "servico_dados"
-                current_screen: root.current_screen
-            NavButton:
-                text: "7 Raphael"
-                target: "perfil_raphael"
-                current_screen: root.current_screen
-            NavButton:
-                text: "8 Edgar"
-                target: "perfil_edgar"
-                current_screen: root.current_screen
-            NavButton:
-                text: "9 Projetos"
-                target: "projetos"
-                current_screen: root.current_screen
-            NavButton:
-                text: "10 Contato"
+                text: "Contato"
                 target: "contato"
                 current_screen: root.current_screen
 
-<IntroScreen@Screen>:
-    name: "intro"
+<InicioScreen@Screen>:
+    name: "inicio"
     BoxLayout:
         orientation: "vertical"
         canvas.before:
@@ -316,7 +257,7 @@
                 pos: self.pos
                 size: self.size
         ScreenHeader:
-            current_screen: "intro"
+            current_screen: "inicio"
         ScrollView:
             do_scroll_x: False
             BoxLayout:
@@ -326,35 +267,33 @@
                 size_hint_y: None
                 height: self.minimum_height
                 SectionTitle:
-                    text: "Engenharia de software & projetos elétricos"
+                    text: "Engenharia de software & projetos eletricos"
                 BodyText:
-                    text: "Soluções digitais e elétricas para tirar seus projetos do papel."
+                    text: "Solucoes digitais e eletricas para tirar seus projetos do papel."
                 BodyText:
-                    text: "A Engenho Digital integra desenvolvimento de softwares sob medida, projetos elétricos em CAD/CAM e automação de processos. Combinamos engenharia, dados e experiência em campo para entregar soluções enxutas, modernas e prontas para produção."
+                    text: "A Engenho Digital integra desenvolvimento de softwares sob medida, projetos eletricos em CAD/CAM e automacao de processos. Combinamos engenharia, dados e experiencia em campo para entregar solucoes enxutas, modernas e prontas para producao."
                 BoxLayout:
                     size_hint_y: None
                     height: dp(46)
                     spacing: dp(10)
                     PrimaryButton:
-                        text: "Agendar conversa técnica"
+                        text: "Agendar conversa tecnica"
                         on_release: app.go("contato")
                     GhostButton:
-                        text: "Ver projetos em destaque"
-                        on_release: app.go("projetos")
-                SectionTitle:
-                    text: "Números rápidos"
-                BadgeCard:
-                    value: "+10"
-                    caption: "Anos com tecnologia"
-                BadgeCard:
-                    value: "Full-stack"
-                    caption: "Web · APIs · Data"
-                BadgeCard:
-                    value: "CAD/CAM"
-                    caption: "Projetos elétricos detalhados"
+                        text: "Ver servicos"
+                        on_release: app.go("servicos")
+                InfoCard:
+                    title: "+10 anos com tecnologia"
+                    body: "Experiencia full-stack em web, APIs, dados e projetos tecnicos."
+                InfoCard:
+                    title: "Full-stack"
+                    body: "Desenvolvimento de sistemas web, integracoes e automacao de processos."
+                InfoCard:
+                    title: "CAD/CAM"
+                    body: "Projetos eletricos detalhados para obras, industrias e escritorios."
 
-<CompanyScreen@Screen>:
-    name: "empresa"
+<ServicosScreen@Screen>:
+    name: "servicos"
     BoxLayout:
         orientation: "vertical"
         canvas.before:
@@ -364,41 +303,7 @@
                 pos: self.pos
                 size: self.size
         ScreenHeader:
-            current_screen: "empresa"
-        ScrollView:
-            do_scroll_x: False
-            BoxLayout:
-                orientation: "vertical"
-                padding: dp(16)
-                spacing: dp(14)
-                size_hint_y: None
-                height: self.minimum_height
-                SectionTitle:
-                    text: "Engenho Digital | Projetos & Sistemas"
-                BodyText:
-                    text: "Serviços, projetos e contato em um só app para facilitar a comunicação técnica com sua equipe."
-                InfoCard:
-                    title: "Quem somos"
-                    body: "A Engenho Digital integra desenvolvimento de softwares sob medida, projetos elétricos em CAD/CAM e automação de processos para tirar projetos do papel com rapidez e clareza técnica."
-                InfoCard:
-                    title: "Como atuamos"
-                    body: "Atuamos desde o estudo de viabilidade até a entrega em produção, com foco em documentação clara, rastreabilidade e aderência a normas técnicas."
-                InfoCard:
-                    title: "Fale com a gente"
-                    body: "Use a tela de contato para iniciar uma conversa técnica, enviar e-mail e acessar os canais oficiais da empresa."
-
-<WhatWeDoScreen@Screen>:
-    name: "o_que_fazemos"
-    BoxLayout:
-        orientation: "vertical"
-        canvas.before:
-            Color:
-                rgba: bg_color
-            Rectangle:
-                pos: self.pos
-                size: self.size
-        ScreenHeader:
-            current_screen: "o_que_fazemos"
+            current_screen: "servicos"
         ScrollView:
             do_scroll_x: False
             BoxLayout:
@@ -409,80 +314,29 @@
                 height: self.minimum_height
                 SectionTitle:
                     text: "O que fazemos"
-                InfoCard:
-                    title: "1) Software sob medida para o seu negócio"
-                    body: "Sistemas web em Flask, React e cloud, focados em automação, dashboards e integrações."
-                InfoCard:
-                    title: "2) Projetos elétricos em CAD/CAM"
-                    body: "Plantas, diagramas, quadros e detalhamento técnico para obras, indústrias e escritórios de engenharia."
-                InfoCard:
-                    title: "3) Consultoria em dados e automação"
-                    body: "Uso inteligente de dados para reduzir retrabalho, padronizar processos e ganhar previsibilidade."
-
-<SoftwareServiceScreen@Screen>:
-    name: "servico_software"
-    BoxLayout:
-        orientation: "vertical"
-        canvas.before:
-            Color:
-                rgba: bg_color
-            Rectangle:
-                pos: self.pos
-                size: self.size
-        ScreenHeader:
-            current_screen: "servico_software"
-        ScrollView:
-            do_scroll_x: False
-            BoxLayout:
-                orientation: "vertical"
-                padding: dp(16)
-                spacing: dp(12)
-                size_hint_y: None
-                height: self.minimum_height
-                SectionTitle:
-                    text: "Desenvolvimento de Software"
                 BodyText:
-                    text: "Aplicações web modernas usando Flask, React, APIs em Python e bancos de dados relacionais e NoSQL."
+                    text: "Servicos que conectam engenharia, software e dados, do estudo de viabilidade ate a entrega em producao."
                 DetailCard:
-                    heading: "Entregas"
-                    summary: "Soluções completas para operação, gestão e integração de sistemas."
+                    heading: "1) Software sob medida"
+                    summary: "Sistemas web em Flask, React e cloud, focados em automacao, dashboards e integracoes."
                     bullet1: "Sistemas internos e portais web"
-                    bullet2: "Dashboards para indicadores de gestão"
-                    bullet3: "Integração com serviços em nuvem e APIs"
-
-<ElectricalServiceScreen@Screen>:
-    name: "servico_eletrica"
-    BoxLayout:
-        orientation: "vertical"
-        canvas.before:
-            Color:
-                rgba: bg_color
-            Rectangle:
-                pos: self.pos
-                size: self.size
-        ScreenHeader:
-            current_screen: "servico_eletrica"
-        ScrollView:
-            do_scroll_x: False
-            BoxLayout:
-                orientation: "vertical"
-                padding: dp(16)
-                spacing: dp(12)
-                size_hint_y: None
-                height: self.minimum_height
-                SectionTitle:
-                    text: "Projetos Elétricos CAD/CAM"
-                BodyText:
-                    text: "Projetos em AutoCAD e ferramentas CAM para instalações elétricas prediais, industriais e de infraestrutura."
+                    bullet2: "Dashboards para indicadores de gestao"
+                    bullet3: "Integracao com servicos em nuvem e APIs"
                 DetailCard:
-                    heading: "Entregas"
-                    summary: "Documentação técnica pronta para aprovação e execução."
+                    heading: "2) Projetos eletricos CAD/CAM"
+                    summary: "Plantas, diagramas, quadros e detalhamento tecnico para obras e industrias."
                     bullet1: "Diagramas unifilares e trifilares"
-                    bullet2: "Layouts de iluminação e tomadas"
-                    bullet3: "Quadros de cargas, listas de materiais e detalhamento"
+                    bullet2: "Layouts de iluminacao e tomadas"
+                    bullet3: "Quadros de cargas e listas de materiais"
+                DetailCard:
+                    heading: "3) Consultoria em dados e automacao"
+                    summary: "Uso inteligente de dados para reduzir retrabalho e dar previsibilidade ao processo."
+                    bullet1: "Rotinas ETL/ELT para planilhas e bancos"
+                    bullet2: "Automacao de relatorios tecnicos e laudos"
+                    bullet3: "Suporte em IA aplicada ao negocio"
 
-<DataServiceScreen@Screen>:
-    name: "servico_dados"
+<EquipeScreen@Screen>:
+    name: "equipe"
     BoxLayout:
         orientation: "vertical"
         canvas.before:
@@ -492,7 +346,7 @@
                 pos: self.pos
                 size: self.size
         ScreenHeader:
-            current_screen: "servico_dados"
+            current_screen: "equipe"
         ScrollView:
             do_scroll_x: False
             BoxLayout:
@@ -502,124 +356,39 @@
                 size_hint_y: None
                 height: self.minimum_height
                 SectionTitle:
-                    text: "Automação & Dados"
-                BodyText:
-                    text: "Modelagem de dados, automação de relatórios e criação de pipelines que aliviam o trabalho manual do dia a dia."
+                    text: "Quem assina os projetos"
                 DetailCard:
-                    heading: "Entregas"
-                    summary: "Estruturação de dados para decisão rápida e previsível."
-                    bullet1: "Rotinas de ETL/ELT para planilhas e bancos"
-                    bullet2: "Automatização de relatórios técnicos e laudos"
-                    bullet3: "Suporte para uso de inteligência artificial aplicada ao negócio"
-
-<RaphaelScreen@Screen>:
-    name: "perfil_raphael"
-    BoxLayout:
-        orientation: "vertical"
-        canvas.before:
-            Color:
-                rgba: bg_color
-            Rectangle:
-                pos: self.pos
-                size: self.size
-        ScreenHeader:
-            current_screen: "perfil_raphael"
-        ScrollView:
-            do_scroll_x: False
-            BoxLayout:
-                orientation: "vertical"
-                padding: dp(16)
-                spacing: dp(12)
-                size_hint_y: None
-                height: self.minimum_height
-                SectionTitle:
-                    text: "Engenharia & Dados"
-                BodyText:
-                    text: "Raphael Hendrigo de Souza Gonçalves"
-                BodyText:
-                    text: "Engenheiro de Computação, Engenheiro Eletricista e Engenheiro de Alimentos, com sólida experiência em desenvolvimento de sistemas e ciência de dados aplicada a negócios. Atua em projetos que combinam arquitetura de software, integração entre APIs e criação de pipelines inteligentes."
+                    heading: "Engenharia & Dados"
+                    summary: "Raphael Hendrigo de Souza Goncalves"
+                    bullet1: "Engenheiro de Computacao, Eletricista e de Alimentos"
+                    bullet2: "Lideranca tecnica em solucoes web, automacao e analytics"
+                    bullet3: "Pos-graduando no MBA de Ciencia de Dados do USP ICMC"
                 DetailCard:
-                    heading: "Destaques"
-                    summary: "Liderança técnica com foco em soluções aplicáveis ao negócio."
-                    bullet1: "Liderança técnica em soluções web, automação e analytics"
-                    bullet2: "Pós-graduando no MBA de Ciência de Dados do USP ICMC em São Carlos (SP)"
-                    bullet3: "Especialista em transformar dados operacionais em insights acionáveis"
-
-<EdgarScreen@Screen>:
-    name: "perfil_edgar"
-    BoxLayout:
-        orientation: "vertical"
-        canvas.before:
-            Color:
-                rgba: bg_color
-            Rectangle:
-                pos: self.pos
-                size: self.size
-        ScreenHeader:
-            current_screen: "perfil_edgar"
-        ScrollView:
-            do_scroll_x: False
-            BoxLayout:
-                orientation: "vertical"
-                padding: dp(16)
-                spacing: dp(12)
-                size_hint_y: None
-                height: self.minimum_height
-                SectionTitle:
-                    text: "Projetos Elétricos & CAD/CAM"
-                BodyText:
-                    text: "Edgar de Almeida"
-                BodyText:
-                    text: "Especialista em projetos elétricos detalhados e integração CAD/CAM, com forte atuação em plantas industriais, escritórios corporativos e instalações críticas. Estrutura equipes, define padrões e garante que cada documento esteja pronto para aprovação."
-                DetailCard:
-                    heading: "Destaques"
-                    summary: "Conformidade técnica, eficiência energética e documentação executiva."
-                    bullet1: "Domínio de plataformas CAD, modelagem 2D/3D e detalhamento executivo"
-                    bullet2: "Experiência em coordenação de listas de materiais, diagramas e quadros de cargas"
-                    bullet3: "Referência para garantir conformidade técnica e eficiência energética"
-
-<ProjectsScreen@Screen>:
-    name: "projetos"
-    BoxLayout:
-        orientation: "vertical"
-        canvas.before:
-            Color:
-                rgba: bg_color
-            Rectangle:
-                pos: self.pos
-                size: self.size
-        ScreenHeader:
-            current_screen: "projetos"
-        ScrollView:
-            do_scroll_x: False
-            BoxLayout:
-                orientation: "vertical"
-                padding: dp(16)
-                spacing: dp(12)
-                size_hint_y: None
-                height: self.minimum_height
+                    heading: "Projetos Eletricos & CAD/CAM"
+                    summary: "Edgar de Almeida"
+                    bullet1: "Especialista em CAD, modelagem 2D/3D e detalhamento executivo"
+                    bullet2: "Experiencia em diagramas, quadros de cargas e materiais"
+                    bullet3: "Foco em conformidade tecnica e eficiencia energetica"
                 SectionTitle:
                     text: "Projetos em destaque"
-                BodyText:
-                    text: "Alguns exemplos de como aplicamos tecnologia e engenharia para resolver problemas reais."
                 DetailCard:
-                    heading: "SOFTWARE · GESTÃO"
-                    summary: "Portal de Automação de Processos Internos: sistema web em Python/Flask integrado à nuvem para controle de demandas, geração automática de documentos e painéis gerenciais."
-                    bullet1: "Redução de retrabalho operacional"
-                    bullet2: "Histórico completo e rastreabilidade"
-                    bullet3: "Exportação de relatórios em poucos cliques"
+                    heading: "Software · Gestao"
+                    summary: "Portal de Automacao de Processos Internos em Python/Flask integrado a nuvem."
+                    bullet1: "Reducao de retrabalho operacional"
+                    bullet2: "Historico completo e rastreabilidade"
+                    bullet3: "Exportacao de relatorios em poucos cliques"
                 DetailCard:
-                    heading: "ELÉTRICA · CAD/CAM"
-                    summary: "Projeto Elétrico de Escritório Corporativo com plantas, diagramas e quadros de cargas para implantação de novo escritório, com foco em segurança e eficiência energética."
-                    bullet1: "Layout em CAD com revisões controladas"
-                    bullet2: "Documentação pronta para aprovação"
-                    bullet3: "Lista de materiais organizada por ambiente"
+                    heading: "Eletrica · CAD/CAM"
+                    summary: "Projeto eletrico de escritorio corporativo com foco em seguranca e eficiencia."
+                    bullet1: "Layout em CAD com revisoes controladas"
+                    bullet2: "Documentacao pronta para aprovacao"
+                    bullet3: "Lista de materiais por ambiente"
                 DetailCard:
-                    heading: "DADOS · AUTOMAÇÃO"
-                    summary: "Monitoramento de Indicadores Técnicos com pipeline para concentrar informações em um único painel e acelerar decisões baseadas em evidências."
-                    bullet1: "Integração de múltiplas fontes de dados"
-                    bullet2: "Atualização automática de métricas"
-                    bullet3: "Visualização clara para times técnicos e gestores"
+                    heading: "Dados · Automacao"
+                    summary: "Monitoramento de indicadores tecnicos com pipeline e painel unico."
+                    bullet1: "Integracao de multiplas fontes"
+                    bullet2: "Atualizacao automatica de metricas"
+                    bullet3: "Visualizacao clara para times tecnicos e gestores"
 
 <ContactScreen@Screen>:
     name: "contato"
@@ -644,10 +413,10 @@
                 SectionTitle:
                     text: "Vamos tirar seu projeto do papel?"
                 BodyText:
-                    text: "Envie um resumo da sua necessidade em software ou projeto elétrico e retornaremos com uma proposta de abordagem técnica e prazos estimados."
+                    text: "Envie um resumo da sua necessidade em software ou projeto eletrico e retornaremos com uma proposta tecnica e prazos estimados."
                 InfoCard:
                     title: "Canais de contato"
-                    body: "E-mail: " + app.email_address + "\nWhatsApp: " + app.support_phone
+                    body: "E-mail: contato@engenhodigitalweb.com.br\nWhatsApp: (coloque aqui o numero oficial da empresa)"
                 PrimaryButton:
                     text: "Abrir site oficial"
                     on_release: app.open_url(app.website_url)
@@ -658,7 +427,7 @@
                     text: "Falar no WhatsApp"
                     on_release: app.open_whatsapp()
                 GhostButton:
-                    text: "Política de privacidade"
+                    text: "Politica de privacidade"
                     on_release: app.open_url(app.privacy_policy_url)
                 BodyText:
                     text: "© 2025 Engenho Digital Projetos & Sistemas. Todos os direitos reservados."
@@ -666,13 +435,7 @@
                     text: "Site desenvolvido em Flask + Tailwind CSS e preparado para deploy no Google Cloud Platform."
 
 ScreenManager:
-    IntroScreen:
-    CompanyScreen:
-    WhatWeDoScreen:
-    SoftwareServiceScreen:
-    ElectricalServiceScreen:
-    DataServiceScreen:
-    RaphaelScreen:
-    EdgarScreen:
-    ProjectsScreen:
+    InicioScreen:
+    ServicosScreen:
+    EquipeScreen:
     ContactScreen:
